@@ -919,12 +919,12 @@
         key.type = "button";
         key.className = "key " + (isBlack ? "black" : "white");
         key.dataset.note = note;
-        const label = note
-          .replace("s", "#")
-          .replace(/(\d)/, "");
-        key.textContent = isBlack ? label : (note.startsWith("C") || note.startsWith("F") || note.startsWith("G") || note === "E4" || note === "A4" || note === "D4" || note === "B4" || note === "E3" || note === "A3" || note === "D3" || note === "B3" ? note.replace(/(\d)/, "") : "");
-        if (!isBlack && (note.startsWith("C") || note === "G4" || note === "E4" || note === "A4")) {
-          key.textContent = note.replace("4", "").replace("3", "").replace("5", "") + note.slice(-1);
+        if (isBlack) {
+          key.textContent = note.replace("s", "#").replace(/\d/, "");
+        } else if (note.startsWith("C") || note === "E4" || note === "G4" || note === "A4") {
+          key.textContent = note;
+        } else {
+          key.textContent = "";
         }
         key.onclick = async () => {
           stopAll();
