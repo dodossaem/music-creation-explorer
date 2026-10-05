@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>중학교 음악 창작 탐색기</title>
+  <script src="./vendor/Tone.js"></script>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --bg-elev: #1a222d;
+      --bg-card: #232d3b;
+      --line: #334155;
+      --text: #e8eef6;
+      --muted: #9aabbf;
+      --accent: #e8a23a;
+      --accent-dim: #b87920;
+      --major: #3dba8a;
+      --minor: #7b8cf0;
+      --playing: #f0c674;
+      --danger: #ef6b6b;
+      --radius: 16px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --font: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(232, 162, 58, 0.12), transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, rgba(61, 186, 138, 0.08), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+
+    header {
+      text-align: center;
+      padding: 28px 12px 20px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 24px;
+    }
+    header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+    header p { margin: 0; color: var(--muted); line-height: 1.5; }
+
+    .status {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .pill {
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+    .pill.ok { color: var(--major); border-color: rgba(61,186,138,0.4); }
+    .pill.warn { color: var(--accent); border-color: rgba(232,162,58,0.4); }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 18px 0 26px;
+    }
+    .tab {
+      border: 0;
+      cursor: pointer;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      background: var(--bg-elev);
+      color: var(--muted);
+      transition: 0.2s ease;
+    }
+    .tab.active {
+      background: var(--accent);
+      color: #1a1205;
+      box-shadow: var(--shadow);
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .hint {
+      background: rgba(232,162,58,0.08);
+      border: 1px solid rgba(232,162,58,0.25);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      color: #f3e0bd;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      margin-bottom: 18px;
+    }
+
+    .cats {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .cat {
+      border: 1px solid var(--line);
+      background: var(--bg-elev);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cat.active {
+      background: rgba(232,162,58,0.18);
+      color: var(--accent);
+      border-color: rgba(232,162,58,0.45);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #273243, var(--bg-card));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card.playing {
+      border-color: var(--playing);
+      box-shadow: 0 0 0 2px rgba(240,198,116,0.2), var(--shadow);
+      transform: translateY(-2px);
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .card .group {
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .card h3 { margin: 2px 0 0; font-size: 1.15rem; }
+    .icon { font-size: 1.8rem; line-height: 1; }
+    .desc { color: var(--muted); font-size: 0.9rem; line-height: 1.45; margin: 8px 0 12px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .tag {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      color: #f0d29a;
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #1a1205; }
+    .btn-primary:hover:not(:disabled) { background: #f0b35a; }
+    .btn-secondary { background: #354456; color: var(--text); }
+    .btn-secondary:hover:not(:disabled) { background: #405268; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+    .btn-full { width: 100%; }
+    .btn-major { background: var(--major); color: #062116; }
+    .btn-minor { background: var(--minor); color: #10142d; }
+
+    .compare {
+      margin-top: 22px;
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .compare h2 { margin: 0 0 8px; font-size: 1.1rem; color: var(--accent); }
+    .compare p { margin: 0 0 12px; color: var(--muted); font-size: 0.9rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; min-height: 34px; }
+    .chip {
+      background: rgba(232,162,58,0.15);
+      border: 1px solid rgba(232,162,58,0.35);
+      color: #f4d39a;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .chip button {
+      border: 0;
+      background: transparent;
+      color: var(--danger);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .box {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .box h3 { margin: 0 0 6px; }
+    .box .sub { color: var(--muted); font-size: 0.86rem; margin-bottom: 12px; line-height: 1.45; }
+
+    .prog-list { display: grid; gap: 10px; }
+    .prog {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .prog strong { display: block; margin-bottom: 4px; }
+    .prog span { color: var(--muted); font-size: 0.85rem; }
+
+    .worksheet {
+      margin-top: 28px;
+      background: linear-gradient(135deg, rgba(232,162,58,0.12), rgba(26,34,45,0.9));
+      border: 1px solid rgba(232,162,58,0.35);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .worksheet h2 { margin: 0 0 12px; color: var(--accent); font-size: 1.15rem; }
+    label { display: block; font-size: 0.9rem; color: #d7e0ec; margin-bottom: 6px; font-weight: 600; }
+    input[type="text"], textarea, select {
+      width: 100%;
+      background: #121820;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 11px 12px;
+      font: inherit;
+      margin-bottom: 12px;
+    }
+    textarea { min-height: 84px; resize: vertical; }
+    .checks { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .check {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 7px 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .check.on {
+      background: rgba(232,162,58,0.18);
+      border-color: rgba(232,162,58,0.45);
+      color: var(--accent);
+    }
+    .summary {
+      background: rgba(0,0,0,0.25);
+      border-radius: 12px;
+      padding: 12px;
+      color: #dce7f4;
+      line-height: 1.55;
+      font-size: 0.92rem;
+      white-space: pre-wrap;
+    }
+
+    footer {
+      margin-top: 28px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>🎻 중학교 음악 창작 탐색기</h1>
+      <p>악기 음색, 장조·단조, 코드 진행을 직접 들어보며<br />표현하고 싶은 장면에 어울리는 소리를 찾아보세요.</p>
+      <div class="status">
+        <span class="pill" id="audioStatus">🔊 소리 준비 중…</span>
+        <span class="pill" id="sampleStatus">🎧 로컬 음원 확인 중…</span>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="instruments">🎻 악기 음색 탐색</button>
+      <button class="tab" data-tab="harmony">🎹 조성 · 코드 진행 탐색</button>
+    </div>
+
+    <!-- 악기 탐색 -->
+    <section class="panel active" id="panel-instruments">
+      <div class="hint">
+        같은 악기도 연주 방법과 음의 높이에 따라 다양한 느낌을 표현할 수 있어요.
+        단음과 짧은 멜로디를 들어보고, 비교함에 악기를 담아 같은 선율로 음색을 비교해 보세요.
+      </div>
+
+      <div class="cats" id="categoryBar"></div>
+      <div class="grid" id="instrumentGrid"></div>
+
+      <div class="compare">
+        <h2>🔍 악기 비교함 <span id="compareCount">(0/4)</span></h2>
+        <p>같은 짧은 멜로디(도-레-미-솔)를 선택한 악기로 차례대로 들어볼 수 있어요. 최대 4개까지 담을 수 있습니다.</p>
+        <div class="chips" id="compareChips"></div>
+        <div class="actions" style="grid-template-columns: 1fr 1fr 1fr;">
+          <button class="btn btn-primary" id="playCompareBtn">▶ 비교 연주</button>
+          <button class="btn btn-secondary" id="clearCompareBtn">비교함 비우기</button>
+          <button class="btn btn-ghost" id="stopBtn">■ 정지</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 화성 탐색 -->
+    <section class="panel" id="panel-harmony">
+      <div class="hint">
+        장조는 밝고 안정적인 느낌, 단조는 어둡거나 긴장된 느낌이 나는 경우가 많아요.
+        절대적인 규칙은 아니니, 직접 들어보고 장면에 맞는 화성을 골라보세요.
+      </div>
+
+      <div class="two-col" style="margin-bottom: 16px;">
+        <div class="box">
+          <h3 style="color: var(--major);">C 장조 (Major)</h3>
+          <div class="sub">밝고 안정적인 느낌 · C - D - E - F - G - A - B</div>
+          <button class="btn btn-major btn-full" id="playMajor">▶ C 장조 코드 듣기</button>
+        </div>
+        <div class="box">
+          <h3 style="color: var(--minor);">C 단조 (Minor)</h3>
+          <div class="sub">어둡거나 긴장된 느낌 · C - D - Eb - F - G - Ab - Bb</div>
+          <button class="btn btn-minor btn-full" id="playMinor">▶ C 단조 코드 듣기</button>
+        </div>
+      </div>
+
+      <div class="box">
+        <h3 style="color: var(--accent); margin-bottom: 8px;">코드 진행 들어보기</h3>
+        <div class="sub">상황/분위기에 자주 쓰이는 짧은 진행입니다. 피아노 음색으로 재생됩니다.</div>
+        <div class="prog-list" id="progressionList"></div>
+      </div>
+    </section>
+
+    <!-- 활동지 -->
+    <section class="worksheet">
+      <h2>🎼 나의 음악 설계 활동지</h2>
+      <label for="scene">어떤 장면을 표현하고 싶나요?</label>
+      <input id="scene" type="text" placeholder="예: 우주의 광활함 속에 혼자 떠 있는 탐사선" />
+
+      <label>어울리는 분위기 키워드</label>
+      <div class="checks" id="moodChecks"></div>
+
+      <label for="chosenInstrument">선택한 악기</label>
+      <select id="chosenInstrument"></select>
+
+      <label for="chosenHarmony">선택한 조성/진행</label>
+      <select id="chosenHarmony">
+        <option value="">아직 고르지 않음</option>
+        <option value="C 장조">C 장조</option>
+        <option value="C 단조">C 단조</option>
+        <option value="I–V–vi–IV (밝고 친근함)">I–V–vi–IV (밝고 친근함)</option>
+        <option value="i–VI–III–VII (영화적 감정)">i–VI–III–VII (영화적 감정)</option>
+        <option value="ii–V–I (안정적 해결)">ii–V–I (안정적 해결)</option>
+        <option value="i–iv–V (긴장 후 해결)">i–iv–V (긴장 후 해결)</option>
+      </select>
+
+      <label for="reason">왜 그렇게 선택했는지 적어보세요</label>
+      <textarea id="reason" placeholder="예: 바이올린의 높고 섬세한 소리가 외로운 탐사선의 감정을 잘 표현할 것 같다."></textarea>
+
+      <div class="summary" id="designSummary">아직 작성된 내용이 없어요. 위 항목을 채워보세요.</div>
+    </section>
+
+    <footer>
+      음원: Philharmonia Orchestra Sound Samples (교육용 로컬 사본) ·
+      오디오 엔진: Tone.js<br />
+      로컬에서 열려면 이 폴더에서 <code>python3 -m http.server 8080</code> 실행 후
+      <code>http://localhost:8080</code> 접속을 권장합니다.
+    </footer>
+  </div>
+
+  <script>
+    const SAMPLE_BASE = "./samples";
+
+    const CATEGORIES = [
+      { id: "string", label: "현악기" },
+      { id: "woodwind", label: "목관악기" },
+      { id: "brass", label: "금관악기" },
+      { id: "pluck", label: "발현·건반" },
+    ];
+
+    const INSTRUMENTS = [
+      {
+        id: "violin", folder: "violin", category: "string", name: "바이올린", icon: "🎻",
+        group: "현악기 · 실음원",
+        desc: "높고 섬세하며 화려하게 뻗어나가는 음색",
+        tags: ["맑음", "긴장감", "슬픔", "서정"],
+        urls: { A3: "A3.mp3", C4: "C4.mp3", D4: "D4.mp3", F4: "F4.mp3", G4: "G4.mp3", B4: "B4.mp3", D5: "D5.mp3", E5: "E5.mp3", G5: "G5.mp3", A5: "A5.mp3", C6: "C6.mp3" },
+        demo: ["C4", "E4", "G4", "C5"],
+        melody: ["C4", "D4", "E4", "G4"],
+      },
+      {
+        id: "viola", folder: "viola", category: "string", name: "비올라", icon: "🎻",
+        group: "현악기 · 실음원",
+        desc: "바이올린보다 낮고 부드럽고 따뜻한 중간 음역",
+        tags: ["따뜻함", "차분함", "서정"],
+        urls: { C3: "C3.mp3", G3: "G3.mp3", C4: "C4.mp3", E4: "E4.mp3", G4: "G4.mp3", C5: "C5.mp3" },
+        demo: ["C3", "G3", "C4"],
+        melody: ["C4", "D4", "E4", "G4"],
+      },
+      {
+        id: "cello", folder: "cello", category: "string", name: "첼로", icon: "🎻",
+        group: "현악기 · 실음원",
+        desc: "낮고 따뜻하며 깊은 울림을 주는 소리",
+        tags: ["따뜻함", "웅장함", "진지함"],
+        urls: { C2: "C2.mp3", C3: "C3.mp3", E3: "E3.mp3", C4: "C4.mp3" },
+        demo: ["C2", "E3", "C3"],
+        melody: ["C3", "D3", "E3", "G3"],
+      },
+      {
+        id: "double-bass", folder: "double-bass", category: "string", name: "콘트라베이스", icon: "🎻",
+        group: "현악기 · 실음원",
+        desc: "가장 낮은 현악기로 무겁고 든든한 받침 역할",
+        tags: ["무게감", "진지함", "든든함"],
+        urls: { E1: "E1.mp3", A1: "A1.mp3", D2: "D2.mp3", G2: "G2.mp3", C3: "C3.mp3" },
+        demo: ["E1", "A1", "D2"],
+        melody: ["E2", "G2", "A2", "C3"],
+      },
+      {
+        id: "flute", folder: "flute", category: "woodwind", name: "플루트", icon: "🎶",
+        group: "목관악기 · 실음원",
+        desc: "맑고 가볍고 공기처럼 부드럽게 흐르는 소리",
+        tags: ["평화", "자연", "가벼움", "맑음"],
+        urls: { C4: "C4.mp3", E4: "E4.mp3", A4: "A4.mp3", C5: "C5.mp3", E5: "E5.mp3" },
+        demo: ["C5", "E5", "A4"],
+        melody: ["C5", "D5", "E5", "A4"],
+      },
+      {
+        id: "clarinet", folder: "clarinet", category: "woodwind", name: "클라리넷", icon: "🎶",
+        group: "목관악기 · 실음원",
+        desc: "부드럽고 둥글며 이야기하듯 표현력 있는 소리",
+        tags: ["부드러움", "신비", "서정"],
+        urls: { G3: "G3.mp3", C4: "C4.mp3", E4: "E4.mp3", G4: "G4.mp3", C5: "C5.mp3" },
+        demo: ["C4", "E4", "G4"],
+        melody: ["C4", "D4", "E4", "G4"],
+      },
+      {
+        id: "trumpet", folder: "trumpet", category: "brass", name: "트럼펫", icon: "🎺",
+        group: "금관악기 · 실음원",
+        desc: "밝고 또렷하며 화려하게 선언하는 소리",
+        tags: ["밝음", "자신감", "화려함"],
+        urls: { C4: "C4.mp3", E4: "E4.mp3", G4: "G4.mp3", C5: "C5.mp3", E5: "E5.mp3" },
+        demo: ["C4", "E4", "G4", "C5"],
+        melody: ["C4", "D4", "E4", "G4"],
+      },
+      {
+        id: "french-horn", folder: "french-horn", category: "brass", name: "호른", icon: "🎺",
+        group: "금관악기 · 실음원",
+        desc: "둥글고 고귀하며 영화 음악처럼 따뜻한 울림",
+        tags: ["웅장함", "따뜻함", "신비"],
+        urls: { C3: "C3.mp3", E3: "E3.mp3", C4: "C4.mp3", E4: "E4.mp3" },
+        demo: ["C3", "E3", "C4"],
+        melody: ["C4", "D4", "E4", "G4"],
+      },
+      {
+        id: "guitar", folder: "guitar", category: "pluck", name: "기타", icon: "🎸",
+        group: "발현악기 · 실음원",
+        desc: "친근하고 리듬감 있으며 다양한 분위기를 만드는 소리",
+        tags: ["친근함", "리듬", "서정"],
+        urls: { E2: "E2.mp3", A2: "A2.mp3", D3: "D3.mp3", G3: "G3.mp3", B3: "B3.mp3", E4: "E4.mp3" },
+        demo: ["E2", "A2", "D3", "G3"],
+        melody: ["E3", "G3", "A3", "B3"],
+      },
+      {
+        id: "piano", folder: null, category: "pluck", name: "피아노", icon: "🎹",
+        group: "건반악기 · 합성음",
+        desc: "명확한 음정과 풍부한 화성으로 분위기를 잡기 좋은 소리",
+        tags: ["맑음", "진지함", "평화"],
+        urls: null,
+        demo: ["C3", "E3", "G3", "C4"],
+        melody: ["C4", "D4", "E4", "G4"],
+        synthOnly: true,
+      },
+    ];
+
+    const PROGRESSIONS = [
+      {
+        id: "pop-bright",
+        title: "I – V – vi – IV",
+        detail: "밝고 친근한 대중가요 느낌 (C – G – Am – F)",
+        chords: [["C4","E4","G4"],["G3","B3","D4"],["A3","C4","E4"],["F3","A3","C4"]],
+      },
+      {
+        id: "cinematic",
+        title: "i – VI – III – VII",
+        detail: "감정적이고 영화적인 느낌 (Cm – Ab – Eb – Bb)",
+        chords: [["C4","Eb4","G4"],["Ab3","C4","Eb4"],["Eb4","G4","Bb4"],["Bb3","D4","F4"]],
+      },
+      {
+        id: "resolve",
+        title: "ii – V – I",
+        detail: "긴장 후 안정적으로 해결되는 느낌 (Dm – G – C)",
+        chords: [["D4","F4","A4"],["G3","B3","D4"],["C4","E4","G4"]],
+      },
+      {
+        id: "minor-tension",
+        title: "i – iv – V",
+        detail: "어둡다가 강하게 일어나는 느낌 (Cm – Fm – G)",
+        chords: [["C4","Eb4","G4"],["F3","Ab3","C4"],["G3","B3","D4"]],
+      },
+    ];
+
+    const MOODS = ["따뜻함","슬픔","진지함","웅장함","평화","자연","신비","가벼움","긴장감","밝음"];
+
+    const state = {
+      category: "string",
+      playingId: null,
+      compare: [],
+      samplers: {},
+      ready: {},
+      piano: null,
+      stopHandles: [],
+    };
+
+    function $(id) { return document.getElementById(id); }
+
+    function setPlaying(id) {
+      state.playingId = id;
+      document.querySelectorAll(".card").forEach((el) => {
+        el.classList.toggle("playing", el.dataset.id === id);
+      });
+    }
+
+    function stopAll() {
+      state.stopHandles.forEach((fn) => { try { fn(); } catch (_) {} });
+      state.stopHandles = [];
+      Object.values(state.samplers).forEach((s) => { try { s.releaseAll(); } catch (_) {} });
+      if (state.piano) { try { state.piano.releaseAll(); } catch (_) {} }
+      setPlaying(null);
+    }
+
+    function makeSynth() {
+      return new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: "triangle" },
+        envelope: { attack: 0.02, decay: 0.2, sustain: 0.3, release: 0.8 },
+      }).toDestination();
+    }
+
+    async function ensureAudio() {
+      await Tone.start();
+      if (!state.piano) state.piano = makeSynth();
+      $("audioStatus").textContent = "🔊 오디오 준비 완료";
+      $("audioStatus").classList.add("ok");
+    }
+
+    function loadSampler(inst) {
+      if (inst.synthOnly) return Promise.resolve(null);
+      if (state.samplers[inst.id]) return Promise.resolve(state.samplers[inst.id]);
+
+      return new Promise((resolve) => {
+        let settled = false;
+        const urls = {};
+        Object.entries(inst.urls).forEach(([note, file]) => {
+          urls[note] = `${SAMPLE_BASE}/${inst.folder}/${file}`;
+        });
+        const sampler = new Tone.Sampler({
+          urls,
+          onload: () => {
+            if (settled) return;
+            settled = true;
+            state.samplers[inst.id] = sampler;
+            state.ready[inst.id] = true;
+            resolve(sampler);
+          },
+          onerror: () => {
+            if (settled) return;
+            settled = true;
+            state.ready[inst.id] = false;
+            resolve(null);
+          },
+        }).toDestination();
+
+        // 네트워크/파일 실패 대비 타임아웃
+        setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          if (state.ready[inst.id]) resolve(sampler);
+          else resolve(null);
+        }, 8000);
+      });
+    }
+
+    async function getVoice(inst) {
+      await ensureAudio();
+      if (inst.synthOnly) return { voice: state.piano, real: false };
+      const sampler = await loadSampler(inst);
+      if (sampler) return { voice: sampler, real: true };
+      if (!state.piano) state.piano = makeSynth();
+      return { voice: state.piano, real: false };
+    }
+
+    async function playNotes(inst, notes, duration = "2n", gapMs = 0) {
+      stopAll();
+      const { voice, real } = await getVoice(inst);
+      setPlaying(inst.id);
+      const now = Tone.now();
+      notes.forEach((n, i) => {
+        const t = now + i * (gapMs / 1000);
+        voice.triggerAttackRelease(n, duration, t);
+      });
+      const total = gapMs * Math.max(notes.length - 1, 0) + Tone.Time(duration).toMilliseconds() + 200;
+      const timer = setTimeout(() => setPlaying(null), total);
+      state.stopHandles.push(() => clearTimeout(timer));
+      return real;
+    }
+
+    async function playMelody(inst) {
+      return playNotes(inst, inst.melody, "8n", 320);
+    }
+
+    async function playDemo(inst) {
+      return playNotes(inst, inst.demo, "2n", 0);
+    }
+
+    function renderCategories() {
+      const bar = $("categoryBar");
+      bar.innerHTML = "";
+      CATEGORIES.forEach((c) => {
+        const btn = document.createElement("button");
+        btn.className = "cat" + (state.category === c.id ? " active" : "");
+        btn.textContent = c.label;
+        btn.onclick = () => {
+          state.category = c.id;
+          renderCategories();
+          renderInstruments();
+        };
+        bar.appendChild(btn);
+      });
+    }
+
+    function renderInstruments() {
+      const grid = $("instrumentGrid");
+      grid.innerHTML = "";
+      INSTRUMENTS.filter((i) => i.category === state.category).forEach((inst) => {
+        const card = document.createElement("article");
+        card.className = "card" + (state.playingId === inst.id ? " playing" : "");
+        card.dataset.id = inst.id;
+        const inCompare = state.compare.includes(inst.id);
+        card.innerHTML = `
+          <div class="card-top">
+            <div>
+              <div class="group">${inst.group}</div>
+              <h3>${inst.name}</h3>
+            </div>
+            <div class="icon">${inst.icon}</div>
+          </div>
+          <div class="desc">“${inst.desc}”</div>
+          <div class="tags">${inst.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>
+          <div class="actions">
+            <button class="btn btn-primary" data-act="demo">▶ 단음/화음</button>
+            <button class="btn btn-secondary" data-act="melody">♪ 짧은 멜로디</button>
+          </div>
+          <button class="btn ${inCompare ? "btn-primary" : "btn-ghost"} btn-full" style="margin-top:8px" data-act="compare">
+            ${inCompare ? "✓ 비교함에 담김" : "+ 비교함에 담기"}
+          </button>
+        `;
+        card.querySelector('[data-act="demo"]').onclick = () => playDemo(inst);
+        card.querySelector('[data-act="melody"]').onclick = () => playMelody(inst);
+        card.querySelector('[data-act="compare"]').onclick = () => toggleCompare(inst.id);
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleCompare(id) {
+      const idx = state.compare.indexOf(id);
+      if (idx >= 0) state.compare.splice(idx, 1);
+      else if (state.compare.length < 4) state.compare.push(id);
+      renderCompare();
+      renderInstruments();
+    }
+
+    function renderCompare() {
+      $("compareCount").textContent = `(${state.compare.length}/4)`;
+      const chips = $("compareChips");
+      chips.innerHTML = "";
+      if (!state.compare.length) {
+        chips.innerHTML = `<span style="color:var(--muted);font-size:0.9rem;">아직 담긴 악기가 없어요.</span>`;
+        return;
+      }
+      state.compare.forEach((id) => {
+        const inst = INSTRUMENTS.find((i) => i.id === id);
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.innerHTML = `${inst.icon} ${inst.name} <button aria-label="제거">×</button>`;
+        chip.querySelector("button").onclick = () => toggleCompare(id);
+        chips.appendChild(chip);
+      });
+    }
+
+    async function playCompare() {
+      if (!state.compare.length) return;
+      stopAll();
+      await ensureAudio();
+      for (const id of state.compare) {
+        const inst = INSTRUMENTS.find((i) => i.id === id);
+        setPlaying(id);
+        const { voice } = await getVoice(inst);
+        const now = Tone.now();
+        inst.melody.forEach((n, i) => voice.triggerAttackRelease(n, "8n", now + i * 0.32));
+        await new Promise((r) => {
+          const t = setTimeout(r, inst.melody.length * 320 + 450);
+          state.stopHandles.push(() => clearTimeout(t));
+        });
+        if (!state.playingId) break;
+      }
+      setPlaying(null);
+    }
+
+    function renderProgressions() {
+      const list = $("progressionList");
+      list.innerHTML = "";
+      PROGRESSIONS.forEach((p) => {
+        const row = document.createElement("div");
+        row.className = "prog";
+        row.innerHTML = `
+          <div>
+            <strong>${p.title}</strong>
+            <span>${p.detail}</span>
+          </div>
+          <button class="btn btn-secondary">▶ 듣기</button>
+        `;
+        row.querySelector("button").onclick = async () => {
+          stopAll();
+          await ensureAudio();
+          setPlaying("prog-" + p.id);
+          const now = Tone.now();
+          p.chords.forEach((chord, i) => {
+            state.piano.triggerAttackRelease(chord, "2n", now + i * 0.85);
+          });
+          const t = setTimeout(() => setPlaying(null), p.chords.length * 850 + 400);
+          state.stopHandles.push(() => clearTimeout(t));
+        };
+        list.appendChild(row);
+      });
+    }
+
+    function renderWorksheet() {
+      const moodBox = $("moodChecks");
+      moodBox.innerHTML = "";
+      const selected = new Set();
+      MOODS.forEach((m) => {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "check";
+        el.textContent = m;
+        el.onclick = () => {
+          if (selected.has(m)) selected.delete(m);
+          else selected.add(m);
+          el.classList.toggle("on");
+          updateSummary(selected);
+        };
+        moodBox.appendChild(el);
+      });
+
+      const sel = $("chosenInstrument");
+      sel.innerHTML = `<option value="">아직 고르지 않음</option>` +
+        INSTRUMENTS.map((i) => `<option value="${i.name}">${i.name}</option>`).join("");
+
+      const update = () => updateSummary(selected);
+      ["scene", "chosenInstrument", "chosenHarmony", "reason"].forEach((id) => {
+        $(id).addEventListener("input", update);
+        $(id).addEventListener("change", update);
+      });
+    }
+
+    function updateSummary(selectedMoods) {
+      const scene = $("scene").value.trim();
+      const instrument = $("chosenInstrument").value;
+      const harmony = $("chosenHarmony").value;
+      const reason = $("reason").value.trim();
+      const moods = [...selectedMoods];
+      if (!scene && !instrument && !harmony && !reason && !moods.length) {
+        $("designSummary").textContent = "아직 작성된 내용이 없어요. 위 항목을 채워보세요.";
+        return;
+      }
+      $("designSummary").textContent =
+        `🎬 장면: ${scene || "(미작성)"}\n` +
+        `🏷️ 분위기: ${moods.length ? moods.join(", ") : "(미선택)"}\n` +
+        `🎻 악기: ${instrument || "(미선택)"}\n` +
+        `🎹 화성: ${harmony || "(미선택)"}\n` +
+        `✍️ 이유: ${reason || "(미작성)"}`;
+    }
+
+    function bindTabs() {
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.onclick = () => {
+          document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+          document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
+          tab.classList.add("active");
+          $("panel-" + tab.dataset.tab).classList.add("active");
+        };
+      });
+    }
+
+    async function preloadCheck() {
+      // 로컬 샘플 존재 여부 확인 (바이올린 C4)
+      try {
+        const res = await fetch(`${SAMPLE_BASE}/violin/C4.mp3`, { method: "HEAD" });
+        if (res.ok) {
+          $("sampleStatus").textContent = "🎧 로컬 MP3 음원 연결됨";
+          $("sampleStatus").classList.add("ok");
+        } else {
+          throw new Error("missing");
+        }
+      } catch (_) {
+        $("sampleStatus").textContent = "⚠️ 로컬 서버로 열어주세요 (file:// 제한 가능)";
+        $("sampleStatus").classList.add("warn");
+      }
+
+      // 백그라운드 프리로드
+      for (const inst of INSTRUMENTS.filter((i) => !i.synthOnly)) {
+        loadSampler(inst);
+      }
+    }
+
+    // 이벤트
+    $("playCompareBtn").onclick = playCompare;
+    $("clearCompareBtn").onclick = () => { state.compare = []; renderCompare(); renderInstruments(); };
+    $("stopBtn").onclick = stopAll;
+    $("playMajor").onclick = async () => {
+      stopAll(); await ensureAudio();
+      setPlaying("major");
+      state.piano.triggerAttackRelease(["C4","E4","G4","C5"], "1n");
+      const t = setTimeout(() => setPlaying(null), 1800);
+      state.stopHandles.push(() => clearTimeout(t));
+    };
+    $("playMinor").onclick = async () => {
+      stopAll(); await ensureAudio();
+      setPlaying("minor");
+      state.piano.triggerAttackRelease(["C4","Eb4","G4","C5"], "1n");
+      const t = setTimeout(() => setPlaying(null), 1800);
+      state.stopHandles.push(() => clearTimeout(t));
+    };
+
+    bindTabs();
+    renderCategories();
+    renderInstruments();
+    renderCompare();
+    renderProgressions();
+    renderWorksheet();
+    preloadCheck();
+  </script>
+</body>
+</html>
