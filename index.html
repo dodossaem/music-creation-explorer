@@ -14,7 +14,6 @@
       --text: #e8eef6;
       --muted: #9aabbf;
       --accent: #e8a23a;
-      --accent-dim: #b87920;
       --major: #3dba8a;
       --minor: #7b8cf0;
       --playing: #f0c674;
@@ -252,6 +251,103 @@
     .prog strong { display: block; margin-bottom: 4px; }
     .prog span { color: var(--muted); font-size: 0.85rem; }
 
+    /* Piano keyboard */
+    .piano-panel {
+      margin: 0 0 16px;
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .piano-panel h3 {
+      margin: 0 0 6px;
+      color: var(--accent);
+      font-size: 1.05rem;
+    }
+    .piano-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 12px;
+      min-height: 1.3em;
+    }
+    .piano-wrap {
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .piano {
+      position: relative;
+      display: flex;
+      width: max-content;
+      min-width: 100%;
+      height: 160px;
+      margin: 0 auto;
+      user-select: none;
+    }
+    .key {
+      position: relative;
+      border: 1px solid #2a3340;
+      border-radius: 0 0 8px 8px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 8px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      transition: background 0.12s, box-shadow 0.12s, transform 0.08s;
+    }
+    .key.white {
+      width: 42px;
+      height: 100%;
+      background: linear-gradient(180deg, #f7f3ea, #e7e0d2);
+      color: #4a5564;
+      z-index: 1;
+    }
+    .key.black {
+      width: 28px;
+      height: 62%;
+      margin-left: -14px;
+      margin-right: -14px;
+      background: linear-gradient(180deg, #3a4554, #171d26);
+      color: #c9d4e2;
+      z-index: 2;
+      border-color: #0b0f14;
+      font-size: 0.58rem;
+    }
+    .key.scale {
+      box-shadow: inset 0 -4px 0 rgba(232,162,58,0.55);
+    }
+    .key.white.active {
+      background: linear-gradient(180deg, #ffe09a, #e8a23a);
+      color: #1a1205;
+      transform: translateY(1px);
+    }
+    .key.black.active {
+      background: linear-gradient(180deg, #f0c674, #b87920);
+      color: #1a1205;
+      box-shadow: 0 0 12px rgba(232,162,58,0.45);
+    }
+    .key.white.scale:not(.active) { background: linear-gradient(180deg, #fff8e8, #f0e2c0); }
+    .key.black.scale:not(.active) { background: linear-gradient(180deg, #5a4a2a, #2a2416); }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .legend i {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      margin-right: 6px;
+      vertical-align: -1px;
+    }
+    .legend .lg-scale { background: #e8a23a; }
+    .legend .lg-active { background: #f0c674; box-shadow: 0 0 6px rgba(240,198,116,0.6); }
+
     .worksheet {
       margin-top: 28px;
       background: linear-gradient(135deg, rgba(232,162,58,0.12), rgba(26,34,45,0.9));
@@ -322,7 +418,6 @@
       <button class="tab" data-tab="harmony">🎹 조성 · 코드 진행 탐색</button>
     </div>
 
-    <!-- 악기 탐색 -->
     <section class="panel active" id="panel-instruments">
       <div class="hint">
         같은 악기도 연주 방법과 음의 높이에 따라 다양한 느낌을 표현할 수 있어요.
@@ -334,7 +429,7 @@
 
       <div class="compare">
         <h2>🔍 악기 비교함 <span id="compareCount">(0/4)</span></h2>
-        <p>같은 짧은 멜로디(도-레-미-솔)를 선택한 악기로 차례대로 들어볼 수 있어요. 최대 4개까지 담을 수 있습니다.</p>
+        <p>같은 짧은 멜로디를 선택한 악기로 차례대로 들어볼 수 있어요. 최대 4개까지 담을 수 있습니다. (타악기는 비교함 제외)</p>
         <div class="chips" id="compareChips"></div>
         <div class="actions" style="grid-template-columns: 1fr 1fr 1fr;">
           <button class="btn btn-primary" id="playCompareBtn">▶ 비교 연주</button>
@@ -344,34 +439,50 @@
       </div>
     </section>
 
-    <!-- 화성 탐색 -->
     <section class="panel" id="panel-harmony">
       <div class="hint">
         장조는 밝고 안정적인 느낌, 단조는 어둡거나 긴장된 느낌이 나는 경우가 많아요.
-        절대적인 규칙은 아니니, 직접 들어보고 장면에 맞는 화성을 골라보세요.
+        아래 피아노에서 <strong>주황 표시 = 음계에 들어가는 건반</strong>, <strong>밝은 점등 = 지금 울리는 건반</strong>입니다.
+      </div>
+
+      <div class="piano-panel">
+        <h3>🎹 건반 위치 보기</h3>
+        <div class="piano-label" id="pianoLabel">버튼을 누르면 해당 음이 건반에 표시됩니다.</div>
+        <div class="piano-wrap">
+          <div class="piano" id="piano"></div>
+        </div>
+        <div class="legend">
+          <span><i class="lg-scale"></i>음계/코드에 포함</span>
+          <span><i class="lg-active"></i>현재 재생 중</span>
+        </div>
       </div>
 
       <div class="two-col" style="margin-bottom: 16px;">
         <div class="box">
           <h3 style="color: var(--major);">C 장조 (Major)</h3>
           <div class="sub">밝고 안정적인 느낌 · C - D - E - F - G - A - B</div>
-          <button class="btn btn-major btn-full" id="playMajor">▶ C 장조 코드 듣기</button>
+          <div class="actions" style="grid-template-columns: 1fr 1fr;">
+            <button class="btn btn-major" id="playMajorScale">♪ 음계 듣기</button>
+            <button class="btn btn-major" id="playMajor">▶ 코드 듣기</button>
+          </div>
         </div>
         <div class="box">
           <h3 style="color: var(--minor);">C 단조 (Minor)</h3>
           <div class="sub">어둡거나 긴장된 느낌 · C - D - Eb - F - G - Ab - Bb</div>
-          <button class="btn btn-minor btn-full" id="playMinor">▶ C 단조 코드 듣기</button>
+          <div class="actions" style="grid-template-columns: 1fr 1fr;">
+            <button class="btn btn-minor" id="playMinorScale">♪ 음계 듣기</button>
+            <button class="btn btn-minor" id="playMinor">▶ 코드 듣기</button>
+          </div>
         </div>
       </div>
 
       <div class="box">
         <h3 style="color: var(--accent); margin-bottom: 8px;">코드 진행 들어보기</h3>
-        <div class="sub">상황/분위기에 자주 쓰이는 짧은 진행입니다. 피아노 음색으로 재생됩니다.</div>
+        <div class="sub">상황/분위기에 자주 쓰이는 짧은 진행입니다. 재생 중 건반이 함께 점등됩니다.</div>
         <div class="prog-list" id="progressionList"></div>
       </div>
     </section>
 
-    <!-- 활동지 -->
     <section class="worksheet">
       <h2>🎼 나의 음악 설계 활동지</h2>
       <label for="scene">어떤 장면을 표현하고 싶나요?</label>
@@ -403,112 +514,190 @@
     <footer>
       음원: Philharmonia Orchestra Sound Samples (교육용 로컬 사본) ·
       오디오 엔진: Tone.js<br />
-      로컬에서 열려면 이 폴더에서 <code>python3 -m http.server 8080</code> 실행 후
-      <code>http://localhost:8080</code> 접속을 권장합니다.
+      GitHub Pages: <a href="https://dodossaem.github.io/music-creation-explorer/" style="color:var(--accent)">dodossaem.github.io/music-creation-explorer</a>
     </footer>
   </div>
 
   <script>
     const SAMPLE_BASE = "./samples";
 
+    function noteUrls(notes) {
+      const urls = {};
+      notes.forEach((n) => { urls[n] = `${n}.mp3`; });
+      return urls;
+    }
+
     const CATEGORIES = [
       { id: "string", label: "현악기" },
       { id: "woodwind", label: "목관악기" },
       { id: "brass", label: "금관악기" },
       { id: "pluck", label: "발현·건반" },
+      { id: "perc", label: "타악기" },
     ];
 
     const INSTRUMENTS = [
       {
         id: "violin", folder: "violin", category: "string", name: "바이올린", icon: "🎻",
-        group: "현악기 · 실음원",
-        desc: "높고 섬세하며 화려하게 뻗어나가는 음색",
+        group: "현악기 · 실음원", desc: "높고 섬세하며 화려하게 뻗어나가는 음색",
         tags: ["맑음", "긴장감", "슬픔", "서정"],
-        urls: { A3: "A3.mp3", C4: "C4.mp3", D4: "D4.mp3", F4: "F4.mp3", G4: "G4.mp3", B4: "B4.mp3", D5: "D5.mp3", E5: "E5.mp3", G5: "G5.mp3", A5: "A5.mp3", C6: "C6.mp3" },
-        demo: ["C4", "E4", "G4", "C5"],
-        melody: ["C4", "D4", "E4", "G4"],
+        urls: noteUrls(["A3","C4","D4","F4","G4","B4","D5","E5","G5","A5","C6"]),
+        demo: ["C4","E4","G4","C5"], melody: ["C4","D4","E4","G4"],
       },
       {
         id: "viola", folder: "viola", category: "string", name: "비올라", icon: "🎻",
-        group: "현악기 · 실음원",
-        desc: "바이올린보다 낮고 부드럽고 따뜻한 중간 음역",
+        group: "현악기 · 실음원", desc: "바이올린보다 낮고 부드럽고 따뜻한 중간 음역",
         tags: ["따뜻함", "차분함", "서정"],
-        urls: { C3: "C3.mp3", G3: "G3.mp3", C4: "C4.mp3", E4: "E4.mp3", G4: "G4.mp3", C5: "C5.mp3" },
-        demo: ["C3", "G3", "C4"],
-        melody: ["C4", "D4", "E4", "G4"],
+        urls: noteUrls(["C3","G3","C4","E4","G4","C5"]),
+        demo: ["C3","G3","C4"], melody: ["C4","D4","E4","G4"],
       },
       {
         id: "cello", folder: "cello", category: "string", name: "첼로", icon: "🎻",
-        group: "현악기 · 실음원",
-        desc: "낮고 따뜻하며 깊은 울림을 주는 소리",
+        group: "현악기 · 실음원", desc: "낮고 따뜻하며 깊은 울림을 주는 소리",
         tags: ["따뜻함", "웅장함", "진지함"],
-        urls: { C2: "C2.mp3", C3: "C3.mp3", E3: "E3.mp3", C4: "C4.mp3" },
-        demo: ["C2", "E3", "C3"],
-        melody: ["C3", "D3", "E3", "G3"],
+        urls: noteUrls(["C2","D2","E2","A2","C3","E3","C4"]),
+        demo: ["C2","E3","C3"], melody: ["C3","D3","E3","A2"],
       },
       {
         id: "double-bass", folder: "double-bass", category: "string", name: "콘트라베이스", icon: "🎻",
-        group: "현악기 · 실음원",
-        desc: "가장 낮은 현악기로 무겁고 든든한 받침 역할",
+        group: "현악기 · 실음원", desc: "가장 낮은 현악기로 무겁고 든든한 받침 역할",
         tags: ["무게감", "진지함", "든든함"],
-        urls: { E1: "E1.mp3", A1: "A1.mp3", D2: "D2.mp3", G2: "G2.mp3", C3: "C3.mp3" },
-        demo: ["E1", "A1", "D2"],
-        melody: ["E2", "G2", "A2", "C3"],
+        urls: noteUrls(["E1","A1","D2","G2","C3"]),
+        demo: ["E1","A1","D2"], melody: ["E2","G2","A2","C3"],
       },
       {
         id: "flute", folder: "flute", category: "woodwind", name: "플루트", icon: "🎶",
-        group: "목관악기 · 실음원",
-        desc: "맑고 가볍고 공기처럼 부드럽게 흐르는 소리",
+        group: "목관악기 · 실음원", desc: "맑고 가볍고 공기처럼 부드럽게 흐르는 소리",
         tags: ["평화", "자연", "가벼움", "맑음"],
-        urls: { C4: "C4.mp3", E4: "E4.mp3", A4: "A4.mp3", C5: "C5.mp3", E5: "E5.mp3" },
-        demo: ["C5", "E5", "A4"],
-        melody: ["C5", "D5", "E5", "A4"],
+        urls: noteUrls(["C4","D4","E4","A4","C5","E5"]),
+        demo: ["C5","E5","A4"], melody: ["C5","D4","E5","A4"],
+      },
+      {
+        id: "oboe", folder: "oboe", category: "woodwind", name: "오보에", icon: "🎶",
+        group: "목관악기 · 실음원", desc: "코끝처럼 또렷하고 애틋하며 표현력이 강한 소리",
+        tags: ["슬픔", "서정", "또렷함"],
+        urls: noteUrls(["C4","D4","E4","G4","A4","C5"]),
+        demo: ["C4","E4","G4"], melody: ["C4","D4","E4","G4"],
       },
       {
         id: "clarinet", folder: "clarinet", category: "woodwind", name: "클라리넷", icon: "🎶",
-        group: "목관악기 · 실음원",
-        desc: "부드럽고 둥글며 이야기하듯 표현력 있는 소리",
+        group: "목관악기 · 실음원", desc: "부드럽고 둥글며 이야기하듯 표현력 있는 소리",
         tags: ["부드러움", "신비", "서정"],
-        urls: { G3: "G3.mp3", C4: "C4.mp3", E4: "E4.mp3", G4: "G4.mp3", C5: "C5.mp3" },
-        demo: ["C4", "E4", "G4"],
-        melody: ["C4", "D4", "E4", "G4"],
+        urls: noteUrls(["G3","C4","E4","G4","C5"]),
+        demo: ["C4","E4","G4"], melody: ["C4","D4","E4","G4"],
+      },
+      {
+        id: "bass-clarinet", folder: "bass-clarinet", category: "woodwind", name: "베이스 클라리넷", icon: "🎶",
+        group: "목관악기 · 실음원", desc: "낮고 그윽하며 어두운 분위기를 만드는 소리",
+        tags: ["어두움", "신비", "무게감"],
+        urls: noteUrls(["C2","E2","C3","E3"]),
+        demo: ["C2","E2","C3"], melody: ["C3","E3","C2","E2"],
+      },
+      {
+        id: "bassoon", folder: "bassoon", category: "woodwind", name: "바순", icon: "🎶",
+        group: "목관악기 · 실음원", desc: "낮고 따뜻한 나무 질감의 유머러스한 울림",
+        tags: ["따뜻함", "진지함", "유머"],
+        urls: noteUrls(["C2","E2","G2","C3","E3","G3"]),
+        demo: ["C2","G2","C3"], melody: ["C3","E3","G3","C2"],
+      },
+      {
+        id: "cor-anglais", folder: "cor-anglais", category: "woodwind", name: "잉글리시 호른", icon: "🎶",
+        group: "목관악기 · 실음원", desc: "오보에보다 낮고 애잔하며 영화적인 소리",
+        tags: ["슬픔", "서정", "영화적"],
+        urls: noteUrls(["E3","G3","C4","E4","G4"]),
+        demo: ["E3","G3","C4"], melody: ["C4","E4","G4","E3"],
+      },
+      {
+        id: "saxophone", folder: "saxophone", category: "woodwind", name: "색소폰", icon: "🎷",
+        group: "목관악기 · 실음원", desc: "부드럽고 감성적이며 재즈적인 매력의 소리",
+        tags: ["감성", "부드러움", "도시적"],
+        urls: noteUrls(["E3","G3","C4","E4","G4"]),
+        demo: ["C4","E4","G4"], melody: ["C4","E4","G4","E3"],
       },
       {
         id: "trumpet", folder: "trumpet", category: "brass", name: "트럼펫", icon: "🎺",
-        group: "금관악기 · 실음원",
-        desc: "밝고 또렷하며 화려하게 선언하는 소리",
+        group: "금관악기 · 실음원", desc: "밝고 또렷하며 화려하게 선언하는 소리",
         tags: ["밝음", "자신감", "화려함"],
-        urls: { C4: "C4.mp3", E4: "E4.mp3", G4: "G4.mp3", C5: "C5.mp3", E5: "E5.mp3" },
-        demo: ["C4", "E4", "G4", "C5"],
-        melody: ["C4", "D4", "E4", "G4"],
+        urls: noteUrls(["C4","E4","G4","C5","E5"]),
+        demo: ["C4","E4","G4","C5"], melody: ["C4","D4","E4","G4"],
       },
       {
         id: "french-horn", folder: "french-horn", category: "brass", name: "호른", icon: "🎺",
-        group: "금관악기 · 실음원",
-        desc: "둥글고 고귀하며 영화 음악처럼 따뜻한 울림",
+        group: "금관악기 · 실음원", desc: "둥글고 고귀하며 영화 음악처럼 따뜻한 울림",
         tags: ["웅장함", "따뜻함", "신비"],
-        urls: { C3: "C3.mp3", E3: "E3.mp3", C4: "C4.mp3", E4: "E4.mp3" },
-        demo: ["C3", "E3", "C4"],
-        melody: ["C4", "D4", "E4", "G4"],
+        urls: noteUrls(["C3","D3","E3","A3","C4","E4"]),
+        demo: ["C3","E3","C4"], melody: ["C4","D3","E4","A3"],
+      },
+      {
+        id: "trombone", folder: "trombone", category: "brass", name: "트롬본", icon: "🎺",
+        group: "금관악기 · 실음원", desc: "굵고 힘 있으며 활기차게 밀고 나가는 소리",
+        tags: ["힘", "활기", "웅장함"],
+        urls: noteUrls(["C3","E3","G3","C4","E4","G4"]),
+        demo: ["C3","G3","C4"], melody: ["C4","E4","G4","C3"],
+      },
+      {
+        id: "tuba", folder: "tuba", category: "brass", name: "튜바", icon: "🎺",
+        group: "금관악기 · 실음원", desc: "가장 낮고 묵직하게 바닥을 받쳐주는 소리",
+        tags: ["무게감", "든든함", "웅장함"],
+        urls: noteUrls(["C2","E2","G2","C3","E3","G3"]),
+        demo: ["C2","G2","C3"], melody: ["C2","E2","G2","C3"],
       },
       {
         id: "guitar", folder: "guitar", category: "pluck", name: "기타", icon: "🎸",
-        group: "발현악기 · 실음원",
-        desc: "친근하고 리듬감 있으며 다양한 분위기를 만드는 소리",
+        group: "발현악기 · 실음원", desc: "친근하고 리듬감 있으며 다양한 분위기를 만드는 소리",
         tags: ["친근함", "리듬", "서정"],
-        urls: { E2: "E2.mp3", A2: "A2.mp3", D3: "D3.mp3", G3: "G3.mp3", B3: "B3.mp3", E4: "E4.mp3" },
-        demo: ["E2", "A2", "D3", "G3"],
-        melody: ["E3", "G3", "A3", "B3"],
+        urls: noteUrls(["E2","A2","D3","G3","B3","E4"]),
+        demo: ["E2","A2","D3","G3"], melody: ["E3","G3","A3","B3"],
+      },
+      {
+        id: "mandolin", folder: "mandolin", category: "pluck", name: "만돌린", icon: "🎸",
+        group: "발현악기 · 실음원", desc: "반짝이고 가벼운 트레몰로 느낌의 소리",
+        tags: ["가벼움", "반짝임", "민속"],
+        urls: noteUrls(["A3","D4","G4","B4","E5"]),
+        demo: ["D4","G4","B4"], melody: ["D4","G4","B4","E5"],
+      },
+      {
+        id: "banjo", folder: "banjo", category: "pluck", name: "밴조", icon: "🪕",
+        group: "발현악기 · 실음원", desc: "톡톡 튀고 경쾌한 민속적 리듬의 소리",
+        tags: ["경쾌함", "민속", "리듬"],
+        urls: noteUrls(["G3","C4","D4","G4","B4","D5"]),
+        demo: ["G3","C4","G4"], melody: ["C4","D4","G4","B4"],
       },
       {
         id: "piano", folder: null, category: "pluck", name: "피아노", icon: "🎹",
-        group: "건반악기 · 합성음",
-        desc: "명확한 음정과 풍부한 화성으로 분위기를 잡기 좋은 소리",
+        group: "건반악기 · 합성음", desc: "명확한 음정과 풍부한 화성으로 분위기를 잡기 좋은 소리",
         tags: ["맑음", "진지함", "평화"],
-        urls: null,
-        demo: ["C3", "E3", "G3", "C4"],
-        melody: ["C4", "D4", "E4", "G4"],
+        urls: null, demo: ["C3","E3","G3","C4"], melody: ["C4","D4","E4","G4"],
         synthOnly: true,
+      },
+      {
+        id: "snare", folder: "percussion", category: "perc", name: "스네어 드럼", icon: "🥁",
+        group: "타악기 · 실음원", desc: "짧고 또렷한 타격음으로 박자를 살리는 소리",
+        tags: ["리듬", "또렷함", "긴장감"],
+        oneShot: "snare.mp3",
+      },
+      {
+        id: "bass-drum", folder: "percussion", category: "perc", name: "베이스 드럼", icon: "🥁",
+        group: "타악기 · 실음원", desc: "낮고 묵직한 타격으로 무게감을 주는 소리",
+        tags: ["무게감", "리듬", "든든함"],
+        oneShot: "bass-drum.mp3",
+      },
+      {
+        id: "cymbal", folder: "percussion", category: "perc", name: "심벌", icon: "🥁",
+        group: "타악기 · 실음원", desc: "반짝이며 퍼지는 금속성 타악기 소리",
+        tags: ["반짝임", "강조", "화려함"],
+        oneShot: "cymbal.mp3",
+      },
+      {
+        id: "tambourine", folder: "percussion", category: "perc", name: "탬버린", icon: "🥁",
+        group: "타악기 · 실음원", desc: "가볍고 경쾌하게 흔들리는 소리",
+        tags: ["경쾌함", "리듬", "가벼움"],
+        oneShot: "tambourine.mp3",
+      },
+      {
+        id: "triangle", folder: "percussion", category: "perc", name: "트라이앵글", icon: "🔺",
+        group: "타악기 · 실음원", desc: "맑고 짧게 반짝이는 금속 타악기 소리",
+        tags: ["맑음", "강조", "가벼움"],
+        oneShot: "triangle.mp3",
       },
     ];
 
@@ -518,40 +707,61 @@
         title: "I – V – vi – IV",
         detail: "밝고 친근한 대중가요 느낌 (C – G – Am – F)",
         chords: [["C4","E4","G4"],["G3","B3","D4"],["A3","C4","E4"],["F3","A3","C4"]],
+        labels: ["C", "G", "Am", "F"],
       },
       {
         id: "cinematic",
         title: "i – VI – III – VII",
         detail: "감정적이고 영화적인 느낌 (Cm – Ab – Eb – Bb)",
         chords: [["C4","Eb4","G4"],["Ab3","C4","Eb4"],["Eb4","G4","Bb4"],["Bb3","D4","F4"]],
+        labels: ["Cm", "Ab", "Eb", "Bb"],
       },
       {
         id: "resolve",
         title: "ii – V – I",
         detail: "긴장 후 안정적으로 해결되는 느낌 (Dm – G – C)",
         chords: [["D4","F4","A4"],["G3","B3","D4"],["C4","E4","G4"]],
+        labels: ["Dm", "G", "C"],
       },
       {
         id: "minor-tension",
         title: "i – iv – V",
         detail: "어둡다가 강하게 일어나는 느낌 (Cm – Fm – G)",
         chords: [["C4","Eb4","G4"],["F3","Ab3","C4"],["G3","B3","D4"]],
+        labels: ["Cm", "Fm", "G"],
       },
     ];
 
+    const MAJOR_SCALE = ["C4","D4","E4","F4","G4","A4","B4","C5"];
+    const MINOR_SCALE = ["C4","D4","Eb4","F4","G4","Ab4","Bb4","C5"];
+    const MAJOR_CHORD = ["C4","E4","G4","C5"];
+    const MINOR_CHORD = ["C4","Eb4","G4","C5"];
     const MOODS = ["따뜻함","슬픔","진지함","웅장함","평화","자연","신비","가벼움","긴장감","밝음"];
+
+    // C3 ~ C5
+    const PIANO_NOTES = [
+      "C3","Cs3","D3","Ds3","E3","F3","Fs3","G3","Gs3","A3","As3","B3",
+      "C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4","A4","As4","B4","C5",
+    ];
+    const ENHARMONIC = { "Db3":"Cs3","Eb3":"Ds3","Gb3":"Fs3","Ab3":"Gs3","Bb3":"As3",
+      "Db4":"Cs4","Eb4":"Ds4","Gb4":"Fs4","Ab4":"Gs4","Bb4":"As4" };
 
     const state = {
       category: "string",
       playingId: null,
       compare: [],
       samplers: {},
+      players: {},
       ready: {},
       piano: null,
       stopHandles: [],
     };
 
     function $(id) { return document.getElementById(id); }
+
+    function normNote(n) {
+      return ENHARMONIC[n] || n;
+    }
 
     function setPlaying(id) {
       state.playingId = id;
@@ -560,11 +770,46 @@
       });
     }
 
+    function clearKeyboardActive() {
+      document.querySelectorAll(".key.active").forEach((el) => el.classList.remove("active"));
+    }
+
+    function setKeyboardScale(notes) {
+      document.querySelectorAll(".key").forEach((el) => el.classList.remove("scale", "active"));
+      (notes || []).forEach((n) => {
+        const el = document.querySelector(`.key[data-note="${normNote(n)}"]`);
+        if (el) el.classList.add("scale");
+      });
+    }
+
+    function setKeyboardActive(notes) {
+      clearKeyboardActive();
+      (notes || []).forEach((n) => {
+        const el = document.querySelector(`.key[data-note="${normNote(n)}"]`);
+        if (el) el.classList.add("active");
+      });
+    }
+
+    function scheduleKeyboard(noteGroups, stepMs, holdMs) {
+      noteGroups.forEach((notes, i) => {
+        const t1 = setTimeout(() => setKeyboardActive(notes), i * stepMs);
+        const t2 = setTimeout(() => clearKeyboardActive(), i * stepMs + holdMs);
+        state.stopHandles.push(() => clearTimeout(t1), () => clearTimeout(t2));
+      });
+      const end = setTimeout(() => {
+        clearKeyboardActive();
+        setPlaying(null);
+      }, noteGroups.length * stepMs + holdMs + 80);
+      state.stopHandles.push(() => clearTimeout(end));
+    }
+
     function stopAll() {
       state.stopHandles.forEach((fn) => { try { fn(); } catch (_) {} });
       state.stopHandles = [];
       Object.values(state.samplers).forEach((s) => { try { s.releaseAll(); } catch (_) {} });
+      Object.values(state.players).forEach((p) => { try { p.stop(); } catch (_) {} });
       if (state.piano) { try { state.piano.releaseAll(); } catch (_) {} }
+      clearKeyboardActive();
       setPlaying(null);
     }
 
@@ -583,7 +828,7 @@
     }
 
     function loadSampler(inst) {
-      if (inst.synthOnly) return Promise.resolve(null);
+      if (inst.synthOnly || inst.oneShot) return Promise.resolve(null);
       if (state.samplers[inst.id]) return Promise.resolve(state.samplers[inst.id]);
 
       return new Promise((resolve) => {
@@ -609,7 +854,6 @@
           },
         }).toDestination();
 
-        // 네트워크/파일 실패 대비 타임아웃
         setTimeout(() => {
           if (settled) return;
           settled = true;
@@ -628,36 +872,81 @@
       return { voice: state.piano, real: false };
     }
 
+    async function playOneShot(inst) {
+      stopAll();
+      await ensureAudio();
+      setPlaying(inst.id);
+      const url = `${SAMPLE_BASE}/${inst.folder}/${inst.oneShot}`;
+      if (!state.players[inst.id]) {
+        state.players[inst.id] = new Tone.Player({ url, autostart: false }).toDestination();
+        await Tone.loaded();
+      }
+      const player = state.players[inst.id];
+      try { player.start(); } catch (_) { player.restart(); }
+      const t = setTimeout(() => setPlaying(null), 1200);
+      state.stopHandles.push(() => clearTimeout(t));
+    }
+
     async function playNotes(inst, notes, duration = "2n", gapMs = 0) {
       stopAll();
-      const { voice, real } = await getVoice(inst);
+      const { voice } = await getVoice(inst);
       setPlaying(inst.id);
       const now = Tone.now();
       notes.forEach((n, i) => {
-        const t = now + i * (gapMs / 1000);
-        voice.triggerAttackRelease(n, duration, t);
+        voice.triggerAttackRelease(n, duration, now + i * (gapMs / 1000));
       });
       const total = gapMs * Math.max(notes.length - 1, 0) + Tone.Time(duration).toMilliseconds() + 200;
       const timer = setTimeout(() => setPlaying(null), total);
       state.stopHandles.push(() => clearTimeout(timer));
-      return real;
     }
 
     async function playMelody(inst) {
+      if (inst.oneShot) return playOneShot(inst);
       return playNotes(inst, inst.melody, "8n", 320);
     }
 
     async function playDemo(inst) {
+      if (inst.oneShot) return playOneShot(inst);
       return playNotes(inst, inst.demo, "2n", 0);
+    }
+
+    function renderPiano() {
+      const root = $("piano");
+      root.innerHTML = "";
+      PIANO_NOTES.forEach((note) => {
+        const isBlack = note.includes("s");
+        const key = document.createElement("button");
+        key.type = "button";
+        key.className = "key " + (isBlack ? "black" : "white");
+        key.dataset.note = note;
+        const label = note
+          .replace("s", "#")
+          .replace(/(\d)/, "");
+        key.textContent = isBlack ? label : (note.startsWith("C") || note.startsWith("F") || note.startsWith("G") || note === "E4" || note === "A4" || note === "D4" || note === "B4" || note === "E3" || note === "A3" || note === "D3" || note === "B3" ? note.replace(/(\d)/, "") : "");
+        if (!isBlack && (note.startsWith("C") || note === "G4" || note === "E4" || note === "A4")) {
+          key.textContent = note.replace("4", "").replace("3", "").replace("5", "") + note.slice(-1);
+        }
+        key.onclick = async () => {
+          stopAll();
+          await ensureAudio();
+          setKeyboardActive([note]);
+          state.piano.triggerAttackRelease(note, "8n");
+          $("pianoLabel").textContent = `건반: ${note.replace("s", "#")}`;
+          const t = setTimeout(() => clearKeyboardActive(), 500);
+          state.stopHandles.push(() => clearTimeout(t));
+        };
+        root.appendChild(key);
+      });
     }
 
     function renderCategories() {
       const bar = $("categoryBar");
       bar.innerHTML = "";
       CATEGORIES.forEach((c) => {
+        const count = INSTRUMENTS.filter((i) => i.category === c.id).length;
         const btn = document.createElement("button");
         btn.className = "cat" + (state.category === c.id ? " active" : "");
-        btn.textContent = c.label;
+        btn.textContent = `${c.label} (${count})`;
         btn.onclick = () => {
           state.category = c.id;
           renderCategories();
@@ -675,6 +964,7 @@
         card.className = "card" + (state.playingId === inst.id ? " playing" : "");
         card.dataset.id = inst.id;
         const inCompare = state.compare.includes(inst.id);
+        const canCompare = !inst.oneShot;
         card.innerHTML = `
           <div class="card-top">
             <div>
@@ -686,16 +976,18 @@
           <div class="desc">“${inst.desc}”</div>
           <div class="tags">${inst.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>
           <div class="actions">
-            <button class="btn btn-primary" data-act="demo">▶ 단음/화음</button>
-            <button class="btn btn-secondary" data-act="melody">♪ 짧은 멜로디</button>
+            <button class="btn btn-primary" data-act="demo">${inst.oneShot ? "▶ 소리 듣기" : "▶ 단음/화음"}</button>
+            <button class="btn btn-secondary" data-act="melody" ${inst.oneShot ? "disabled" : ""}>♪ 짧은 멜로디</button>
           </div>
-          <button class="btn ${inCompare ? "btn-primary" : "btn-ghost"} btn-full" style="margin-top:8px" data-act="compare">
+          ${canCompare ? `<button class="btn ${inCompare ? "btn-primary" : "btn-ghost"} btn-full" style="margin-top:8px" data-act="compare">
             ${inCompare ? "✓ 비교함에 담김" : "+ 비교함에 담기"}
-          </button>
+          </button>` : ""}
         `;
         card.querySelector('[data-act="demo"]').onclick = () => playDemo(inst);
-        card.querySelector('[data-act="melody"]').onclick = () => playMelody(inst);
-        card.querySelector('[data-act="compare"]').onclick = () => toggleCompare(inst.id);
+        const melBtn = card.querySelector('[data-act="melody"]');
+        if (melBtn && !inst.oneShot) melBtn.onclick = () => playMelody(inst);
+        const cmp = card.querySelector('[data-act="compare"]');
+        if (cmp) cmp.onclick = () => toggleCompare(inst.id);
         grid.appendChild(card);
       });
     }
@@ -745,6 +1037,34 @@
       setPlaying(null);
     }
 
+    async function playHarmonyScale(kind) {
+      stopAll();
+      await ensureAudio();
+      const scale = kind === "major" ? MAJOR_SCALE : MINOR_SCALE;
+      const title = kind === "major" ? "C 장조 음계" : "C 단조 음계";
+      setPlaying(kind + "-scale");
+      setKeyboardScale(scale);
+      $("pianoLabel").textContent = `${title}: ${scale.map((n) => n.replace("s","#").replace(/\d/,"")).join(" - ")}`;
+      const now = Tone.now();
+      scale.forEach((n, i) => state.piano.triggerAttackRelease(n, "8n", now + i * 0.28));
+      scheduleKeyboard(scale.map((n) => [n]), 280, 240);
+    }
+
+    async function playHarmonyChord(kind) {
+      stopAll();
+      await ensureAudio();
+      const chord = kind === "major" ? MAJOR_CHORD : MINOR_CHORD;
+      const scale = kind === "major" ? MAJOR_SCALE : MINOR_SCALE;
+      const title = kind === "major" ? "C 장조 코드 (C)" : "C 단조 코드 (Cm)";
+      setPlaying(kind + "-chord");
+      setKeyboardScale(scale);
+      setKeyboardActive(chord);
+      $("pianoLabel").textContent = `${title}: ${chord.map((n) => n.replace("s","#")).join(" + ")}`;
+      state.piano.triggerAttackRelease(chord, "1n");
+      const t = setTimeout(() => { clearKeyboardActive(); setPlaying(null); }, 1800);
+      state.stopHandles.push(() => clearTimeout(t));
+    }
+
     function renderProgressions() {
       const list = $("progressionList");
       list.innerHTML = "";
@@ -762,12 +1082,25 @@
           stopAll();
           await ensureAudio();
           setPlaying("prog-" + p.id);
+          const allNotes = [...new Set(p.chords.flat())];
+          setKeyboardScale(allNotes);
+          $("pianoLabel").textContent = `${p.title} 진행 중…`;
           const now = Tone.now();
           p.chords.forEach((chord, i) => {
             state.piano.triggerAttackRelease(chord, "2n", now + i * 0.85);
           });
-          const t = setTimeout(() => setPlaying(null), p.chords.length * 850 + 400);
-          state.stopHandles.push(() => clearTimeout(t));
+          scheduleKeyboard(
+            p.chords.map((chord, i) => {
+              // also update label per chord
+              const t = setTimeout(() => {
+                $("pianoLabel").textContent = `${p.title} → ${p.labels[i]} (${chord.map((n)=>n.replace("s","#")).join(" + ")})`;
+              }, i * 850);
+              state.stopHandles.push(() => clearTimeout(t));
+              return chord;
+            }),
+            850,
+            700
+          );
         };
         list.appendChild(row);
       });
@@ -832,46 +1165,31 @@
     }
 
     async function preloadCheck() {
-      // 로컬 샘플 존재 여부 확인 (바이올린 C4)
       try {
         const res = await fetch(`${SAMPLE_BASE}/violin/C4.mp3`, { method: "HEAD" });
         if (res.ok) {
-          $("sampleStatus").textContent = "🎧 로컬 MP3 음원 연결됨";
+          $("sampleStatus").textContent = `🎧 실음원 ${INSTRUMENTS.filter(i => !i.synthOnly).length}종 연결됨`;
           $("sampleStatus").classList.add("ok");
-        } else {
-          throw new Error("missing");
-        }
+        } else throw new Error("missing");
       } catch (_) {
         $("sampleStatus").textContent = "⚠️ 로컬 서버로 열어주세요 (file:// 제한 가능)";
         $("sampleStatus").classList.add("warn");
       }
-
-      // 백그라운드 프리로드
-      for (const inst of INSTRUMENTS.filter((i) => !i.synthOnly)) {
+      for (const inst of INSTRUMENTS.filter((i) => !i.synthOnly && !i.oneShot)) {
         loadSampler(inst);
       }
     }
 
-    // 이벤트
     $("playCompareBtn").onclick = playCompare;
     $("clearCompareBtn").onclick = () => { state.compare = []; renderCompare(); renderInstruments(); };
     $("stopBtn").onclick = stopAll;
-    $("playMajor").onclick = async () => {
-      stopAll(); await ensureAudio();
-      setPlaying("major");
-      state.piano.triggerAttackRelease(["C4","E4","G4","C5"], "1n");
-      const t = setTimeout(() => setPlaying(null), 1800);
-      state.stopHandles.push(() => clearTimeout(t));
-    };
-    $("playMinor").onclick = async () => {
-      stopAll(); await ensureAudio();
-      setPlaying("minor");
-      state.piano.triggerAttackRelease(["C4","Eb4","G4","C5"], "1n");
-      const t = setTimeout(() => setPlaying(null), 1800);
-      state.stopHandles.push(() => clearTimeout(t));
-    };
+    $("playMajorScale").onclick = () => playHarmonyScale("major");
+    $("playMinorScale").onclick = () => playHarmonyScale("minor");
+    $("playMajor").onclick = () => playHarmonyChord("major");
+    $("playMinor").onclick = () => playHarmonyChord("minor");
 
     bindTabs();
+    renderPiano();
     renderCategories();
     renderInstruments();
     renderCompare();
