@@ -815,6 +815,14 @@
       return ENHARMONIC[n] || n;
     }
 
+    // 건반은 Cs/Ds 표기, Tone.js 재생은 C#/D# 표기가 필요함 (Ds4면 첫 코드에서 예외로 진행이 끊김)
+    function toToneNote(n) {
+      return String(normNote(n)).replace(/([A-G])s(\d)/g, "$1#$2");
+    }
+    function toToneChord(chord) {
+      return (chord || []).map(toToneNote);
+    }
+
     function setPlaying(id) {
       state.playingId = id;
       document.querySelectorAll(".card").forEach((el) => {
@@ -1271,7 +1279,7 @@
       setKeyboardScale(scale);
       $("pianoLabel").textContent = `${title}: ${scale.map((n) => n.replace("s","#").replace(/\d/,"")).join(" - ")}`;
       const now = Tone.now();
-      scale.forEach((n, i) => state.piano.triggerAttackRelease(n, "8n", now + i * 0.28));
+      scale.forEach((n, i) => state.piano.triggerAttackRelease(toToneNote(n), "8n", now + i * 0.28));
       scheduleKeyboard(scale.map((n) => [n]), 280, 240);
     }
 
@@ -1286,7 +1294,7 @@
       setKeyboardScale(scale);
       setKeyboardActive(chord);
       $("pianoLabel").textContent = `${title}: ${chord.map((n) => n.replace("s","#")).join(" + ")}`;
-      state.piano.triggerAttackRelease(chord, "1n");
+      state.piano.triggerAttackRelease(toToneChord(chord), "1n");
       const t = setTimeout(() => { clearKeyboardActive(); setPlaying(null); }, 1800);
       state.stopHandles.push(() => clearTimeout(t));
     }
@@ -1340,13 +1348,19 @@
           const chords = p.chords.map((chord) => chord.map(normNote));
           const allNotes = [...new Set(chords.flat())];
           setKeyboardScale(allNotes);
-          $("pianoLabel").textContent = `${inst.name} · ${p.title} 진행 중…`;
+          $("pianoLabel").textContent = `${inst.name} · ${p.title} → ${p.labels[0]}`;
           // 코드가 겹쳐 뭉개지지 않도록 짧게 끊고 간격을 둠
           const step = 1.15;
           const now = Tone.now();
-          chords.forEach((chord, i) => {
-            voice.triggerAttackRelease(chord, "4n", now + i * step);
-          });
+          try {
+            chords.forEach((chord, i) => {
+              voice.triggerAttackRelease(toToneChord(chord), "4n", now + i * step);
+            });
+          } catch (e) {
+            console.error("[progression]", p.id, e);
+            setProgInstrumentMsg(`연주 중 오류: ${e.message || e}`, true);
+            return;
+          }
           scheduleKeyboard(
             chords.map((chord, i) => {
               const t = setTimeout(() => {
