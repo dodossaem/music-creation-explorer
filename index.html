@@ -348,51 +348,6 @@
     .legend .lg-scale { background: #e8a23a; }
     .legend .lg-active { background: #f0c674; box-shadow: 0 0 6px rgba(240,198,116,0.6); }
 
-    .worksheet {
-      margin-top: 28px;
-      background: linear-gradient(135deg, rgba(232,162,58,0.12), rgba(26,34,45,0.9));
-      border: 1px solid rgba(232,162,58,0.35);
-      border-radius: var(--radius);
-      padding: 18px;
-    }
-    .worksheet h2 { margin: 0 0 12px; color: var(--accent); font-size: 1.15rem; }
-    label { display: block; font-size: 0.9rem; color: #d7e0ec; margin-bottom: 6px; font-weight: 600; }
-    input[type="text"], textarea, select {
-      width: 100%;
-      background: #121820;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      color: var(--text);
-      padding: 11px 12px;
-      font: inherit;
-      margin-bottom: 12px;
-    }
-    textarea { min-height: 84px; resize: vertical; }
-    .checks { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-    .check {
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.04);
-      color: var(--muted);
-      border-radius: 999px;
-      padding: 7px 12px;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-    .check.on {
-      background: rgba(232,162,58,0.18);
-      border-color: rgba(232,162,58,0.45);
-      color: var(--accent);
-    }
-    .summary {
-      background: rgba(0,0,0,0.25);
-      border-radius: 12px;
-      padding: 12px;
-      color: #dce7f4;
-      line-height: 1.55;
-      font-size: 0.92rem;
-      white-space: pre-wrap;
-    }
-
     footer {
       margin-top: 28px;
       text-align: center;
@@ -429,7 +384,7 @@
 
       <div class="compare">
         <h2>🔍 악기 비교함 <span id="compareCount">(0/4)</span></h2>
-        <p>같은 짧은 멜로디를 선택한 악기로 차례대로 들어볼 수 있어요. 최대 4개까지 담을 수 있습니다. (타악기는 비교함 제외)</p>
+        <p>같은 짧은 멜로디(약 7~8초)를 선택한 악기로 차례대로 들어볼 수 있어요. 최대 4개까지 담을 수 있습니다. (타악기는 비교함 제외)</p>
         <div class="chips" id="compareChips"></div>
         <div class="actions" style="grid-template-columns: 1fr 1fr 1fr;">
           <button class="btn btn-primary" id="playCompareBtn">▶ 비교 연주</button>
@@ -483,36 +438,8 @@
       </div>
     </section>
 
-    <section class="worksheet">
-      <h2>🎼 나의 음악 설계 활동지</h2>
-      <label for="scene">어떤 장면을 표현하고 싶나요?</label>
-      <input id="scene" type="text" placeholder="예: 우주의 광활함 속에 혼자 떠 있는 탐사선" />
-
-      <label>어울리는 분위기 키워드</label>
-      <div class="checks" id="moodChecks"></div>
-
-      <label for="chosenInstrument">선택한 악기</label>
-      <select id="chosenInstrument"></select>
-
-      <label for="chosenHarmony">선택한 조성/진행</label>
-      <select id="chosenHarmony">
-        <option value="">아직 고르지 않음</option>
-        <option value="C 장조">C 장조</option>
-        <option value="C 단조">C 단조</option>
-        <option value="I–V–vi–IV (밝고 친근함)">I–V–vi–IV (밝고 친근함)</option>
-        <option value="i–VI–III–VII (영화적 감정)">i–VI–III–VII (영화적 감정)</option>
-        <option value="ii–V–I (안정적 해결)">ii–V–I (안정적 해결)</option>
-        <option value="i–iv–V (긴장 후 해결)">i–iv–V (긴장 후 해결)</option>
-      </select>
-
-      <label for="reason">왜 그렇게 선택했는지 적어보세요</label>
-      <textarea id="reason" placeholder="예: 바이올린의 높고 섬세한 소리가 외로운 탐사선의 감정을 잘 표현할 것 같다."></textarea>
-
-      <div class="summary" id="designSummary">아직 작성된 내용이 없어요. 위 항목을 채워보세요.</div>
-    </section>
-
     <footer>
-      음원: Philharmonia Orchestra Sound Samples (교육용 로컬 사본) ·
+      음원: Philharmonia Orchestra Sound Samples · 하프: tonejs-instruments ·
       오디오 엔진: Tone.js<br />
       GitHub Pages: <a href="https://dodossaem.github.io/music-creation-explorer/" style="color:var(--accent)">dodossaem.github.io/music-creation-explorer</a>
     </footer>
@@ -527,11 +454,21 @@
       return urls;
     }
 
+    // 짧은 멜로디: 약 7~8초 (14음 × 0.52초)
+    // C장조 음계(도레미파솔라시)를 오르락내리락하는 간단한 프레이즈
+    const MELODY_GAP_MS = 520;
+    const MELODY_DUR = "4n";
+    const MELODY_MID = ["C4","E4","G4","A4","G4","E4","D4","E4","G4","E4","D4","C4","E4","G4"];
+    const MELODY_LOW = ["C3","E3","G3","A3","G3","E3","D3","E3","G3","E3","D3","C3","E3","G3"];
+    const MELODY_HIGH = ["C5","E5","G5","A5","G5","E5","D5","E5","G5","E5","D5","C5","E5","G5"];
+    const MELODY_BASS = ["C2","E2","G2","A2","G2","E2","D2","E2","G2","E2","D2","C2","E2","G2"];
+    const MELODY_GUITAR = ["E3","G3","A3","B3","A3","G3","E3","G3","A3","B3","A3","G3","E3","A3"];
+    const MELODY_HARP = ["C3","E3","G3","A4","G3","E3","D4","E3","G3","C5","A4","G3","E3","C3"];
+
     const CATEGORIES = [
       { id: "string", label: "현악기" },
       { id: "woodwind", label: "목관악기" },
       { id: "brass", label: "금관악기" },
-      { id: "pluck", label: "발현·건반" },
       { id: "perc", label: "타악기" },
     ];
 
@@ -541,133 +478,140 @@
         group: "현악기 · 실음원", desc: "높고 섬세하며 화려하게 뻗어나가는 음색",
         tags: ["맑음", "긴장감", "슬픔", "서정"],
         urls: noteUrls(["A3","C4","D4","F4","G4","B4","D5","E5","G5","A5","C6"]),
-        demo: ["C4","E4","G4","C5"], melody: ["C4","D4","E4","G4"],
+        demo: ["C4","E4","G4","C5"], melody: MELODY_MID,
       },
       {
         id: "viola", folder: "viola", category: "string", name: "비올라", icon: "🎻",
         group: "현악기 · 실음원", desc: "바이올린보다 낮고 부드럽고 따뜻한 중간 음역",
         tags: ["따뜻함", "차분함", "서정"],
         urls: noteUrls(["C3","G3","C4","E4","G4","C5"]),
-        demo: ["C3","G3","C4"], melody: ["C4","D4","E4","G4"],
+        demo: ["C3","G3","C4"], melody: MELODY_MID,
       },
       {
         id: "cello", folder: "cello", category: "string", name: "첼로", icon: "🎻",
         group: "현악기 · 실음원", desc: "낮고 따뜻하며 깊은 울림을 주는 소리",
         tags: ["따뜻함", "웅장함", "진지함"],
         urls: noteUrls(["C2","D2","E2","A2","C3","E3","C4"]),
-        demo: ["C2","E3","C3"], melody: ["C3","D3","E3","A2"],
+        demo: ["C2","E3","C3"], melody: MELODY_LOW,
       },
       {
         id: "double-bass", folder: "double-bass", category: "string", name: "콘트라베이스", icon: "🎻",
         group: "현악기 · 실음원", desc: "가장 낮은 현악기로 무겁고 든든한 받침 역할",
         tags: ["무게감", "진지함", "든든함"],
         urls: noteUrls(["E1","A1","D2","G2","C3"]),
-        demo: ["E1","A1","D2"], melody: ["E2","G2","A2","C3"],
+        demo: ["E1","A1","D2"], melody: MELODY_BASS,
+      },
+      {
+        id: "harp", folder: "harp", category: "string", name: "하프", icon: "🎵",
+        group: "현악기 · 실음원", desc: "맑고 반짝이며 물결처럼 부드럽게 흐르는 소리",
+        tags: ["맑음", "신비", "평화", "서정"],
+        urls: noteUrls(["A2","C3","D2","D4","E1","E3","E5","G3","A4","B3","B5","C5"]),
+        demo: ["C3","E3","G3","C5"], melody: MELODY_HARP,
+      },
+      {
+        id: "guitar", folder: "guitar", category: "string", name: "기타", icon: "🎸",
+        group: "현악기 · 실음원", desc: "친근하고 리듬감 있으며 다양한 분위기를 만드는 소리",
+        tags: ["친근함", "리듬", "서정"],
+        urls: noteUrls(["E2","A2","D3","G3","B3","E4"]),
+        demo: ["E2","A2","D3","G3"], melody: MELODY_GUITAR,
+      },
+      {
+        id: "mandolin", folder: "mandolin", category: "string", name: "만돌린", icon: "🎸",
+        group: "현악기 · 실음원", desc: "반짝이고 가벼운 트레몰로 느낌의 소리",
+        tags: ["가벼움", "반짝임", "민속"],
+        urls: noteUrls(["A3","D4","G4","B4","E5"]),
+        demo: ["D4","G4","B4"], melody: ["D4","G4","B4","E5","B4","G4","D4","G4","B4","E5","B4","G4","D4","A3"],
+      },
+      {
+        id: "banjo", folder: "banjo", category: "string", name: "밴조", icon: "🪕",
+        group: "현악기 · 실음원", desc: "톡톡 튀고 경쾌한 민속적 리듬의 소리",
+        tags: ["경쾌함", "민속", "리듬"],
+        urls: noteUrls(["G3","C4","D4","G4","B4","D5"]),
+        demo: ["G3","C4","G4"], melody: ["C4","D4","G4","B4","G4","D4","C4","D4","G4","B4","D5","B4","G4","C4"],
+      },
+      {
+        id: "piano", folder: null, category: "string", name: "피아노", icon: "🎹",
+        group: "현악기 · 합성음", desc: "명확한 음정과 풍부한 화성으로 분위기를 잡기 좋은 소리",
+        tags: ["맑음", "진지함", "평화"],
+        urls: null, demo: ["C3","E3","G3","C4"], melody: MELODY_MID,
+        synthOnly: true,
       },
       {
         id: "flute", folder: "flute", category: "woodwind", name: "플루트", icon: "🎶",
         group: "목관악기 · 실음원", desc: "맑고 가볍고 공기처럼 부드럽게 흐르는 소리",
         tags: ["평화", "자연", "가벼움", "맑음"],
         urls: noteUrls(["C4","D4","E4","A4","C5","E5"]),
-        demo: ["C5","E5","A4"], melody: ["C5","D4","E5","A4"],
+        demo: ["C5","E5","A4"], melody: MELODY_HIGH,
       },
       {
         id: "oboe", folder: "oboe", category: "woodwind", name: "오보에", icon: "🎶",
         group: "목관악기 · 실음원", desc: "코끝처럼 또렷하고 애틋하며 표현력이 강한 소리",
         tags: ["슬픔", "서정", "또렷함"],
         urls: noteUrls(["C4","D4","E4","G4","A4","C5"]),
-        demo: ["C4","E4","G4"], melody: ["C4","D4","E4","G4"],
+        demo: ["C4","E4","G4"], melody: MELODY_MID,
       },
       {
         id: "clarinet", folder: "clarinet", category: "woodwind", name: "클라리넷", icon: "🎶",
         group: "목관악기 · 실음원", desc: "부드럽고 둥글며 이야기하듯 표현력 있는 소리",
         tags: ["부드러움", "신비", "서정"],
         urls: noteUrls(["G3","C4","E4","G4","C5"]),
-        demo: ["C4","E4","G4"], melody: ["C4","D4","E4","G4"],
+        demo: ["C4","E4","G4"], melody: MELODY_MID,
       },
       {
         id: "bass-clarinet", folder: "bass-clarinet", category: "woodwind", name: "베이스 클라리넷", icon: "🎶",
         group: "목관악기 · 실음원", desc: "낮고 그윽하며 어두운 분위기를 만드는 소리",
         tags: ["어두움", "신비", "무게감"],
         urls: noteUrls(["C2","E2","C3","E3"]),
-        demo: ["C2","E2","C3"], melody: ["C3","E3","C2","E2"],
+        demo: ["C2","E2","C3"], melody: MELODY_LOW,
       },
       {
         id: "bassoon", folder: "bassoon", category: "woodwind", name: "바순", icon: "🎶",
         group: "목관악기 · 실음원", desc: "낮고 따뜻한 나무 질감의 유머러스한 울림",
         tags: ["따뜻함", "진지함", "유머"],
         urls: noteUrls(["C2","E2","G2","C3","E3","G3"]),
-        demo: ["C2","G2","C3"], melody: ["C3","E3","G3","C2"],
+        demo: ["C2","G2","C3"], melody: MELODY_LOW,
       },
       {
         id: "cor-anglais", folder: "cor-anglais", category: "woodwind", name: "잉글리시 호른", icon: "🎶",
         group: "목관악기 · 실음원", desc: "오보에보다 낮고 애잔하며 영화적인 소리",
         tags: ["슬픔", "서정", "영화적"],
         urls: noteUrls(["E3","G3","C4","E4","G4"]),
-        demo: ["E3","G3","C4"], melody: ["C4","E4","G4","E3"],
+        demo: ["E3","G3","C4"], melody: MELODY_MID,
       },
       {
         id: "saxophone", folder: "saxophone", category: "woodwind", name: "색소폰", icon: "🎷",
         group: "목관악기 · 실음원", desc: "부드럽고 감성적이며 재즈적인 매력의 소리",
         tags: ["감성", "부드러움", "도시적"],
         urls: noteUrls(["E3","G3","C4","E4","G4"]),
-        demo: ["C4","E4","G4"], melody: ["C4","E4","G4","E3"],
+        demo: ["C4","E4","G4"], melody: MELODY_MID,
       },
       {
         id: "trumpet", folder: "trumpet", category: "brass", name: "트럼펫", icon: "🎺",
         group: "금관악기 · 실음원", desc: "밝고 또렷하며 화려하게 선언하는 소리",
         tags: ["밝음", "자신감", "화려함"],
         urls: noteUrls(["C4","E4","G4","C5","E5"]),
-        demo: ["C4","E4","G4","C5"], melody: ["C4","D4","E4","G4"],
+        demo: ["C4","E4","G4","C5"], melody: MELODY_MID,
       },
       {
         id: "french-horn", folder: "french-horn", category: "brass", name: "호른", icon: "🎺",
         group: "금관악기 · 실음원", desc: "둥글고 고귀하며 영화 음악처럼 따뜻한 울림",
         tags: ["웅장함", "따뜻함", "신비"],
         urls: noteUrls(["C3","D3","E3","A3","C4","E4"]),
-        demo: ["C3","E3","C4"], melody: ["C4","D3","E4","A3"],
+        demo: ["C3","E3","C4"], melody: MELODY_LOW,
       },
       {
         id: "trombone", folder: "trombone", category: "brass", name: "트롬본", icon: "🎺",
         group: "금관악기 · 실음원", desc: "굵고 힘 있으며 활기차게 밀고 나가는 소리",
         tags: ["힘", "활기", "웅장함"],
         urls: noteUrls(["C3","E3","G3","C4","E4","G4"]),
-        demo: ["C3","G3","C4"], melody: ["C4","E4","G4","C3"],
+        demo: ["C3","G3","C4"], melody: MELODY_LOW,
       },
       {
         id: "tuba", folder: "tuba", category: "brass", name: "튜바", icon: "🎺",
         group: "금관악기 · 실음원", desc: "가장 낮고 묵직하게 바닥을 받쳐주는 소리",
         tags: ["무게감", "든든함", "웅장함"],
         urls: noteUrls(["C2","E2","G2","C3","E3","G3"]),
-        demo: ["C2","G2","C3"], melody: ["C2","E2","G2","C3"],
-      },
-      {
-        id: "guitar", folder: "guitar", category: "pluck", name: "기타", icon: "🎸",
-        group: "발현악기 · 실음원", desc: "친근하고 리듬감 있으며 다양한 분위기를 만드는 소리",
-        tags: ["친근함", "리듬", "서정"],
-        urls: noteUrls(["E2","A2","D3","G3","B3","E4"]),
-        demo: ["E2","A2","D3","G3"], melody: ["E3","G3","A3","B3"],
-      },
-      {
-        id: "mandolin", folder: "mandolin", category: "pluck", name: "만돌린", icon: "🎸",
-        group: "발현악기 · 실음원", desc: "반짝이고 가벼운 트레몰로 느낌의 소리",
-        tags: ["가벼움", "반짝임", "민속"],
-        urls: noteUrls(["A3","D4","G4","B4","E5"]),
-        demo: ["D4","G4","B4"], melody: ["D4","G4","B4","E5"],
-      },
-      {
-        id: "banjo", folder: "banjo", category: "pluck", name: "밴조", icon: "🪕",
-        group: "발현악기 · 실음원", desc: "톡톡 튀고 경쾌한 민속적 리듬의 소리",
-        tags: ["경쾌함", "민속", "리듬"],
-        urls: noteUrls(["G3","C4","D4","G4","B4","D5"]),
-        demo: ["G3","C4","G4"], melody: ["C4","D4","G4","B4"],
-      },
-      {
-        id: "piano", folder: null, category: "pluck", name: "피아노", icon: "🎹",
-        group: "건반악기 · 합성음", desc: "명확한 음정과 풍부한 화성으로 분위기를 잡기 좋은 소리",
-        tags: ["맑음", "진지함", "평화"],
-        urls: null, demo: ["C3","E3","G3","C4"], melody: ["C4","D4","E4","G4"],
-        synthOnly: true,
+        demo: ["C2","G2","C3"], melody: MELODY_BASS,
       },
       {
         id: "snare", folder: "percussion", category: "perc", name: "스네어 드럼", icon: "🥁",
@@ -736,8 +680,6 @@
     const MINOR_SCALE = ["C4","D4","Eb4","F4","G4","Ab4","Bb4","C5"];
     const MAJOR_CHORD = ["C4","E4","G4","C5"];
     const MINOR_CHORD = ["C4","Eb4","G4","C5"];
-    const MOODS = ["따뜻함","슬픔","진지함","웅장함","평화","자연","신비","가벼움","긴장감","밝음"];
-
     // C3 ~ C5
     const PIANO_NOTES = [
       "C3","Cs3","D3","Ds3","E3","F3","Fs3","G3","Gs3","A3","As3","B3",
@@ -902,7 +844,7 @@
 
     async function playMelody(inst) {
       if (inst.oneShot) return playOneShot(inst);
-      return playNotes(inst, inst.melody, "8n", 320);
+      return playNotes(inst, inst.melody, MELODY_DUR, MELODY_GAP_MS);
     }
 
     async function playDemo(inst) {
@@ -1027,9 +969,9 @@
         setPlaying(id);
         const { voice } = await getVoice(inst);
         const now = Tone.now();
-        inst.melody.forEach((n, i) => voice.triggerAttackRelease(n, "8n", now + i * 0.32));
+        inst.melody.forEach((n, i) => voice.triggerAttackRelease(n, MELODY_DUR, now + i * (MELODY_GAP_MS / 1000)));
         await new Promise((r) => {
-          const t = setTimeout(r, inst.melody.length * 320 + 450);
+          const t = setTimeout(r, inst.melody.length * MELODY_GAP_MS + 600);
           state.stopHandles.push(() => clearTimeout(t));
         });
         if (!state.playingId) break;
@@ -1106,53 +1048,6 @@
       });
     }
 
-    function renderWorksheet() {
-      const moodBox = $("moodChecks");
-      moodBox.innerHTML = "";
-      const selected = new Set();
-      MOODS.forEach((m) => {
-        const el = document.createElement("button");
-        el.type = "button";
-        el.className = "check";
-        el.textContent = m;
-        el.onclick = () => {
-          if (selected.has(m)) selected.delete(m);
-          else selected.add(m);
-          el.classList.toggle("on");
-          updateSummary(selected);
-        };
-        moodBox.appendChild(el);
-      });
-
-      const sel = $("chosenInstrument");
-      sel.innerHTML = `<option value="">아직 고르지 않음</option>` +
-        INSTRUMENTS.map((i) => `<option value="${i.name}">${i.name}</option>`).join("");
-
-      const update = () => updateSummary(selected);
-      ["scene", "chosenInstrument", "chosenHarmony", "reason"].forEach((id) => {
-        $(id).addEventListener("input", update);
-        $(id).addEventListener("change", update);
-      });
-    }
-
-    function updateSummary(selectedMoods) {
-      const scene = $("scene").value.trim();
-      const instrument = $("chosenInstrument").value;
-      const harmony = $("chosenHarmony").value;
-      const reason = $("reason").value.trim();
-      const moods = [...selectedMoods];
-      if (!scene && !instrument && !harmony && !reason && !moods.length) {
-        $("designSummary").textContent = "아직 작성된 내용이 없어요. 위 항목을 채워보세요.";
-        return;
-      }
-      $("designSummary").textContent =
-        `🎬 장면: ${scene || "(미작성)"}\n` +
-        `🏷️ 분위기: ${moods.length ? moods.join(", ") : "(미선택)"}\n` +
-        `🎻 악기: ${instrument || "(미선택)"}\n` +
-        `🎹 화성: ${harmony || "(미선택)"}\n` +
-        `✍️ 이유: ${reason || "(미작성)"}`;
-    }
-
     function bindTabs() {
       document.querySelectorAll(".tab").forEach((tab) => {
         tab.onclick = () => {
@@ -1194,7 +1089,6 @@
     renderInstruments();
     renderCompare();
     renderProgressions();
-    renderWorksheet();
     preloadCheck();
   </script>
 </body>
