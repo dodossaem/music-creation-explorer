@@ -533,9 +533,9 @@
       return urls;
     }
 
-    // 악기별 짧은 구절 (~3–5초)
-    const MELODY_STEP_SEC = 0.40;
-    const MELODY_NOTE_SEC = 0.36;
+    // 음이 끊기지 않게: 다음 음이 오기 전에도 이전 음이 1초 넘게 이어짐
+    const MELODY_STEP_SEC = 0.48;
+    const MELODY_NOTE_SEC = 1.15;
     const MELODY_MID = ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"];
     const MELODY_LOW = ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"];
     const MELODY_HIGH = ["C5","D5","E5","F5","G5","A5","B5","C6","B5","A5","G5","F5","E5","D5","C5"];
@@ -1081,8 +1081,8 @@
         const sampler = new Tone.Sampler({
           urls,
           baseUrl,
-          attack: 0.01,
-          release: 0.3,
+          attack: 0.015,
+          release: 0.9,
           onload: () => {
             if (settled) return;
             settled = true;
@@ -1333,9 +1333,9 @@
       const allNotes = [...new Set(chords.flat())];
       setKeyboardScale(allNotes);
 
-      const step = 0.17;      // 음과 음 사이 (경쾌한 아르페지오)
-      const noteDur = 0.32;   // 살짝 겹치게 이어짐
-      const chordGap = 0.08;  // 코드 전환 숨 고르기
+      const step = 0.28;
+      const noteDur = 0.85;
+      const chordGap = 0.12;
       const events = [];
       let t = 0;
       chords.forEach((chord, ci) => {
@@ -1505,7 +1505,7 @@
           voice.triggerAttackRelease(toToneNote(n), MELODY_NOTE_SEC, now + i * MELODY_STEP_SEC);
         });
         await new Promise((r) => {
-          const t = setTimeout(r, inst.melody.length * MELODY_STEP_SEC * 1000 + 600);
+          const t = setTimeout(r, inst.melody.length * MELODY_STEP_SEC * 1000 + MELODY_NOTE_SEC * 1000 + 400);
           state.stopHandles.push(() => clearTimeout(t));
         });
         if (!state.playingId) break;
