@@ -693,6 +693,7 @@
       samplers: {},
       players: {},
       ready: {},
+      loadPromises: {},
       piano: null,
       stopHandles: [],
     };
@@ -770,46 +771,53 @@
     function loadSampler(inst) {
       if (inst.synthOnly || inst.oneShot) return Promise.resolve(null);
       if (state.samplers[inst.id]) return Promise.resolve(state.samplers[inst.id]);
+      if (state.loadPromises[inst.id]) return state.loadPromises[inst.id];
 
-      return new Promise((resolve) => {
+      state.loadPromises[inst.id] = new Promise((resolve) => {
         let settled = false;
-        const urls = {};
-        Object.entries(inst.urls).forEach(([note, file]) => {
-          urls[note] = `${SAMPLE_BASE}/${inst.folder}/${file}`;
-        });
-        const sampler = new Tone.Sampler({
-          urls,
-          onload: () => {
-            if (settled) return;
-            settled = true;
-            state.samplers[inst.id] = sampler;
-            state.ready[inst.id] = true;
-            resolve(sampler);
-          },
-          onerror: () => {
-            if (settled) return;
-            settled = true;
-            state.ready[inst.id] = false;
-            resolve(null);
-          },
-        }).toDestination();
-
-        setTimeout(() => {
+        const finish = (sampler) => {
           if (settled) return;
           settled = true;
-          if (state.ready[inst.id]) resolve(sampler);
-          else resolve(null);
-        }, 8000);
+          if (sampler) {
+            state.samplers[inst.id] = sampler;
+            state.ready[inst.id] = true;
+          } else {
+            state.ready[inst.id] = false;
+            delete state.loadPromises[inst.id];
+          }
+          resolve(sampler);
+        };
+
+        const urls = {};
+        Object.entries(inst.urls || {}).forEach(([note, file]) => {
+          urls[note] = `${SAMPLE_BASE}/${inst.folder}/${file}`;
+        });
+
+        const sampler = new Tone.Sampler({
+          urls,
+          onload: () => finish(sampler),
+          onerror: () => finish(null),
+        }).toDestination();
+
+        // 음원 수가 많은 악기는 로딩에 시간이 더 걸릴 수 있음
+        setTimeout(() => {
+          if (settled) return;
+          if (state.samplers[inst.id]) finish(state.samplers[inst.id]);
+          else finish(null);
+        }, 25000);
       });
+
+      return state.loadPromises[inst.id];
     }
 
-    async function getVoice(inst) {
+    async function getVoice(inst, { allowFallback = true } = {}) {
       await ensureAudio();
-      if (inst.synthOnly) return { voice: state.piano, real: false };
+      if (inst.synthOnly) return { voice: state.piano, real: true, synth: true };
       const sampler = await loadSampler(inst);
-      if (sampler) return { voice: sampler, real: true };
+      if (sampler) return { voice: sampler, real: true, synth: false };
+      if (!allowFallback) return { voice: null, real: false, synth: false };
       if (!state.piano) state.piano = makeSynth();
-      return { voice: state.piano, real: false };
+      return { voice: state.piano, real: false, synth: true };
     }
 
     async function playOneShot(inst) {
@@ -1092,25 +1100,37 @@
           if (!inst) return;
           stopAll();
           await ensureAudio();
-          const { voice } = await getVoice(inst);
+          setProgInstrumentMsg(`🎧 ${inst.name} 음원 불러오는 중…`, false);
+          const { voice, real, synth } = await getVoice(inst, { allowFallback: !!inst.synthOnly });
+          if (!voice || (!inst.synthOnly && !real)) {
+            setProgInstrumentMsg(`「${inst.name}」음원을 불러오지 못했습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.`, true);
+            return;
+          }
+          if (!inst.synthOnly && synth) {
+            setProgInstrumentMsg(`「${inst.name}」대신 다른 소리가 납니다. 음원 로딩에 실패했습니다.`, true);
+            return;
+          }
+          setProgInstrumentMsg(`${inst.icon} ${inst.name} 음색으로 연주합니다.`, false);
           setPlaying("prog-" + p.id);
           const allNotes = [...new Set(p.chords.flat())];
           setKeyboardScale(allNotes);
           $("pianoLabel").textContent = `${inst.name} · ${p.title} 진행 중…`;
+          // 코드마다 충분히 울리도록 조금 더 길게
+          const step = 1.0;
           const now = Tone.now();
           p.chords.forEach((chord, i) => {
-            voice.triggerAttackRelease(chord, "2n", now + i * 0.85);
+            voice.triggerAttackRelease(chord, "2n", now + i * step);
           });
           scheduleKeyboard(
             p.chords.map((chord, i) => {
               const t = setTimeout(() => {
                 $("pianoLabel").textContent = `${inst.name} · ${p.title} → ${p.labels[i]} (${chord.map((n)=>n.replace("s","#")).join(" + ")})`;
-              }, i * 850);
+              }, i * step * 1000);
               state.stopHandles.push(() => clearTimeout(t));
               return chord;
             }),
-            850,
-            700
+            step * 1000,
+            850
           );
         };
         list.appendChild(row);
