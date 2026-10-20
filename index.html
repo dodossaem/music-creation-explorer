@@ -577,12 +577,13 @@
 
     const INSTRUMENTS = [
       {
-        id: "violin", folder: "violin",
-        phrase: "phrase.mp3", category: "string", name: "바이올린", icon: "🎻",
+        id: "violin", folder: "violin", category: "string", name: "바이올린", icon: "🎻",
         group: "현악기 · 실음원", desc: "높고 섬세하며 화려하게 뻗어나가는 음색",
         tags: ["맑음", "긴장감", "슬픔", "서정"],
-        urls: noteUrls(["C5","Cs5","D5","Ds5","E5","F5","Fs5","G5","Gs5","A5","As5","B5","C6","Cs6","D6","Ds6","E6"]),
-        demo: ["D5","E5","F5","G5"], melody: ["D5","E5","F5","G5","A5","B5","C6","D6","C6","B5","A5","G5"],
+        urls: noteUrls(["G3","B3","D4","G4","B4","C5","Cs5","D5","Ds5","E5","F5","Fs5","G5","Gs5","A5","As5","B5","C6","Cs6","D6","Ds6","E6"]),
+        demo: ["G3","D4","G4","B4"], melody: ["G3","B3","D4","G4","B4","G4","D4","B3"],
+        // 높은 G6 프레이즈는 소리가 얇아서, 보통 음역의 긴 활을 이어 들음
+        line: { notes: ["G3","B3","D4","G4","B4"], step: 1.2, dur: 2.3 },
       },
       {
         id: "viola", folder: "viola",
