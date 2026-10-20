@@ -376,7 +376,7 @@
     <section class="panel active" id="panel-instruments">
       <div class="hint">
         같은 악기도 연주 방법과 음의 높이에 따라 다양한 느낌을 표현할 수 있어요.
-        단음과 짧은 멜로디를 들어보고, 비교함에 악기를 담아 같은 선율로 음색을 비교해 보세요.
+        짧은 멜로디를 들어보고, 비교함에 악기를 담아 같은 선율로 음색을 비교해 보세요.
       </div>
 
       <div class="cats" id="categoryBar"></div>
@@ -384,7 +384,7 @@
 
       <div class="compare">
         <h2>🔍 악기 비교함 <span id="compareCount">(0/4)</span></h2>
-        <p>같은 짧은 멜로디(약 7~8초)를 선택한 악기로 차례대로 들어볼 수 있어요. 최대 4개까지 담을 수 있습니다. (타악기는 비교함 제외)</p>
+        <p>같은 짧은 멜로디(약 5초, 도레미파솔라시도…)를 선택한 악기로 차례대로 들어볼 수 있어요. 최대 4개까지 담을 수 있습니다. (타악기는 비교함 제외)</p>
         <div class="chips" id="compareChips"></div>
         <div class="actions" style="grid-template-columns: 1fr 1fr 1fr;">
           <button class="btn btn-primary" id="playCompareBtn">▶ 비교 연주</button>
@@ -433,7 +433,14 @@
 
       <div class="box">
         <h3 style="color: var(--accent); margin-bottom: 8px;">코드 진행 들어보기</h3>
-        <div class="sub">상황/분위기에 자주 쓰이는 짧은 진행입니다. 재생 중 건반이 함께 점등됩니다.</div>
+        <div class="sub">상황/분위기에 자주 쓰이는 짧은 진행입니다. 악기를 지정하면 그 악기 음색으로 코드가 연주되고, 건반도 함께 점등됩니다.</div>
+        <div style="margin-bottom: 14px;">
+          <label for="progInstrument" style="display:block;font-size:0.9rem;color:#d7e0ec;margin-bottom:6px;font-weight:600;">연주 악기 이름</label>
+          <input id="progInstrument" type="text" list="instrumentNameList" placeholder="예: 바이올린, 플루트, 피아노"
+            style="width:100%;background:#121820;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:11px 12px;font:inherit;" />
+          <datalist id="instrumentNameList"></datalist>
+          <div id="progInstrumentMsg" style="margin-top:8px;font-size:0.88rem;color:var(--muted);min-height:1.3em;"></div>
+        </div>
         <div class="prog-list" id="progressionList"></div>
       </div>
     </section>
@@ -454,16 +461,14 @@
       return urls;
     }
 
-    // 짧은 멜로디: 약 7~8초 (14음 × 0.52초)
-    // C장조 음계(도레미파솔라시)를 오르락내리락하는 간단한 프레이즈
-    const MELODY_GAP_MS = 520;
-    const MELODY_DUR = "4n";
-    const MELODY_MID = ["C4","E4","G4","A4","G4","E4","D4","E4","G4","E4","D4","C4","E4","G4"];
-    const MELODY_LOW = ["C3","E3","G3","A3","G3","E3","D3","E3","G3","E3","D3","C3","E3","G3"];
-    const MELODY_HIGH = ["C5","E5","G5","A5","G5","E5","D5","E5","G5","E5","D5","C5","E5","G5"];
-    const MELODY_BASS = ["C2","E2","G2","A2","G2","E2","D2","E2","G2","E2","D2","C2","E2","G2"];
-    const MELODY_GUITAR = ["E3","G3","A3","B3","A3","G3","E3","G3","A3","B3","A3","G3","E3","A3"];
-    const MELODY_HARP = ["C3","E3","G3","A4","G3","E3","D4","E3","G3","C5","A4","G3","E3","C3"];
+    // 짧은 멜로디: 약 5초 (15음 × 0.33초)
+    // 도-레-미-파-솔-라-시-도-시-라-솔-파-미-레-도
+    const MELODY_GAP_MS = 330;
+    const MELODY_DUR = "8n";
+    const MELODY_MID = ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"];
+    const MELODY_LOW = ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"];
+    const MELODY_HIGH = ["C5","D5","E5","F5","G5","A5","B5","C6","B5","A5","G5","F5","E5","D5","C5"];
+    const MELODY_BASS = ["C2","D2","E2","F2","G2","A2","B2","C3","B2","A2","G2","F2","E2","D2","C2"];
 
     const CATEGORIES = [
       { id: "string", label: "현악기" },
@@ -506,28 +511,28 @@
         group: "현악기 · 실음원", desc: "맑고 반짝이며 물결처럼 부드럽게 흐르는 소리",
         tags: ["맑음", "신비", "평화", "서정"],
         urls: noteUrls(["A2","C3","D2","D4","E1","E3","E5","G3","A4","B3","B5","C5"]),
-        demo: ["C3","E3","G3","C5"], melody: MELODY_HARP,
+        demo: ["C3","E3","G3","C5"], melody: MELODY_LOW,
       },
       {
         id: "guitar", folder: "guitar", category: "string", name: "기타", icon: "🎸",
         group: "현악기 · 실음원", desc: "친근하고 리듬감 있으며 다양한 분위기를 만드는 소리",
         tags: ["친근함", "리듬", "서정"],
         urls: noteUrls(["E2","A2","D3","G3","B3","E4"]),
-        demo: ["E2","A2","D3","G3"], melody: MELODY_GUITAR,
+        demo: ["E2","A2","D3","G3"], melody: MELODY_LOW,
       },
       {
         id: "mandolin", folder: "mandolin", category: "string", name: "만돌린", icon: "🎸",
         group: "현악기 · 실음원", desc: "반짝이고 가벼운 트레몰로 느낌의 소리",
         tags: ["가벼움", "반짝임", "민속"],
         urls: noteUrls(["A3","D4","G4","B4","E5"]),
-        demo: ["D4","G4","B4"], melody: ["D4","G4","B4","E5","B4","G4","D4","G4","B4","E5","B4","G4","D4","A3"],
+        demo: ["D4","G4","B4"], melody: MELODY_MID,
       },
       {
         id: "banjo", folder: "banjo", category: "string", name: "밴조", icon: "🪕",
         group: "현악기 · 실음원", desc: "톡톡 튀고 경쾌한 민속적 리듬의 소리",
         tags: ["경쾌함", "민속", "리듬"],
         urls: noteUrls(["G3","C4","D4","G4","B4","D5"]),
-        demo: ["G3","C4","G4"], melody: ["C4","D4","G4","B4","G4","D4","C4","D4","G4","B4","D5","B4","G4","C4"],
+        demo: ["G3","C4","G4"], melody: MELODY_MID,
       },
       {
         id: "piano", folder: null, category: "string", name: "피아노", icon: "🎹",
@@ -847,9 +852,59 @@
       return playNotes(inst, inst.melody, MELODY_DUR, MELODY_GAP_MS);
     }
 
-    async function playDemo(inst) {
-      if (inst.oneShot) return playOneShot(inst);
-      return playNotes(inst, inst.demo, "2n", 0);
+    function findInstrumentByName(raw) {
+      const q = (raw || "").trim().toLowerCase().replace(/\s+/g, "");
+      if (!q) return { error: "empty" };
+      const aliases = {
+        "더블베이스": "콘트라베이스",
+        "콘트라 베이스": "콘트라베이스",
+        "잉글리시호른": "잉글리시 호른",
+        "잉글리시혼": "잉글리시 호른",
+        "베이스클라리넷": "베이스 클라리넷",
+        "스네어드럼": "스네어 드럼",
+        "베이스드럼": "베이스 드럼",
+        "트럼본": "트롬본",
+      };
+      const mapped = aliases[q] || aliases[(raw || "").trim()] || (raw || "").trim();
+      const inst = INSTRUMENTS.find((i) =>
+        i.name === mapped ||
+        i.name.toLowerCase() === q ||
+        i.name.replace(/\s+/g, "") === q ||
+        i.id === q ||
+        i.id.replace(/-/g, "") === q
+      );
+      if (!inst) return { error: "unsupported", name: (raw || "").trim() };
+      return { inst };
+    }
+
+    function setProgInstrumentMsg(text, isError) {
+      const el = $("progInstrumentMsg");
+      el.textContent = text || "";
+      el.style.color = isError ? "var(--danger)" : "var(--major)";
+    }
+
+    function resolveProgInstrument() {
+      const raw = $("progInstrument").value;
+      const result = findInstrumentByName(raw);
+      if (result.error === "empty") {
+        setProgInstrumentMsg("악기 이름을 입력해 주세요. (예: 바이올린)", true);
+        return null;
+      }
+      if (result.error === "unsupported") {
+        setProgInstrumentMsg(`「${result.name}」은(는) 지원하지 않는 악기입니다.`, true);
+        return null;
+      }
+      if (result.inst.oneShot) {
+        setProgInstrumentMsg(`「${result.inst.name}」은(는) 타악기라 코드 진행 연주를 지원하지 않습니다.`, true);
+        return null;
+      }
+      setProgInstrumentMsg(`${result.inst.icon} ${result.inst.name} 음색으로 연주합니다.`, false);
+      return result.inst;
+    }
+
+    function fillInstrumentDatalist() {
+      const list = $("instrumentNameList");
+      list.innerHTML = INSTRUMENTS.map((i) => `<option value="${i.name}"></option>`).join("");
     }
 
     function renderPiano() {
@@ -917,17 +972,17 @@
           </div>
           <div class="desc">“${inst.desc}”</div>
           <div class="tags">${inst.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>
-          <div class="actions">
-            <button class="btn btn-primary" data-act="demo">${inst.oneShot ? "▶ 소리 듣기" : "▶ 단음/화음"}</button>
-            <button class="btn btn-secondary" data-act="melody" ${inst.oneShot ? "disabled" : ""}>♪ 짧은 멜로디</button>
-          </div>
+          <button class="btn btn-primary btn-full" data-act="play">
+            ${inst.oneShot ? "▶ 소리 듣기" : "♪ 짧은 멜로디"}
+          </button>
           ${canCompare ? `<button class="btn ${inCompare ? "btn-primary" : "btn-ghost"} btn-full" style="margin-top:8px" data-act="compare">
             ${inCompare ? "✓ 비교함에 담김" : "+ 비교함에 담기"}
           </button>` : ""}
         `;
-        card.querySelector('[data-act="demo"]').onclick = () => playDemo(inst);
-        const melBtn = card.querySelector('[data-act="melody"]');
-        if (melBtn && !inst.oneShot) melBtn.onclick = () => playMelody(inst);
+        card.querySelector('[data-act="play"]').onclick = () => {
+          if (inst.oneShot) playOneShot(inst);
+          else playMelody(inst);
+        };
         const cmp = card.querySelector('[data-act="compare"]');
         if (cmp) cmp.onclick = () => toggleCompare(inst.id);
         grid.appendChild(card);
@@ -1008,6 +1063,25 @@
     }
 
     function renderProgressions() {
+      fillInstrumentDatalist();
+      if (!$("progInstrument").value) $("progInstrument").value = "피아노";
+      $("progInstrument").oninput = () => {
+        const raw = $("progInstrument").value.trim();
+        if (!raw) {
+          setProgInstrumentMsg("악기 이름을 입력해 주세요.", true);
+          return;
+        }
+        const result = findInstrumentByName(raw);
+        if (result.error === "unsupported") {
+          setProgInstrumentMsg(`「${result.name}」은(는) 지원하지 않는 악기입니다.`, true);
+        } else if (result.inst && result.inst.oneShot) {
+          setProgInstrumentMsg(`「${result.inst.name}」은(는) 타악기라 코드 진행 연주를 지원하지 않습니다.`, true);
+        } else if (result.inst) {
+          setProgInstrumentMsg(`${result.inst.icon} ${result.inst.name} — 듣기 버튼을 누르면 이 악기로 연주됩니다.`, false);
+        }
+      };
+      $("progInstrument").oninput();
+
       const list = $("progressionList");
       list.innerHTML = "";
       PROGRESSIONS.forEach((p) => {
@@ -1021,21 +1095,23 @@
           <button class="btn btn-secondary">▶ 듣기</button>
         `;
         row.querySelector("button").onclick = async () => {
+          const inst = resolveProgInstrument();
+          if (!inst) return;
           stopAll();
           await ensureAudio();
+          const { voice } = await getVoice(inst);
           setPlaying("prog-" + p.id);
           const allNotes = [...new Set(p.chords.flat())];
           setKeyboardScale(allNotes);
-          $("pianoLabel").textContent = `${p.title} 진행 중…`;
+          $("pianoLabel").textContent = `${inst.name} · ${p.title} 진행 중…`;
           const now = Tone.now();
           p.chords.forEach((chord, i) => {
-            state.piano.triggerAttackRelease(chord, "2n", now + i * 0.85);
+            voice.triggerAttackRelease(chord, "2n", now + i * 0.85);
           });
           scheduleKeyboard(
             p.chords.map((chord, i) => {
-              // also update label per chord
               const t = setTimeout(() => {
-                $("pianoLabel").textContent = `${p.title} → ${p.labels[i]} (${chord.map((n)=>n.replace("s","#")).join(" + ")})`;
+                $("pianoLabel").textContent = `${inst.name} · ${p.title} → ${p.labels[i]} (${chord.map((n)=>n.replace("s","#")).join(" + ")})`;
               }, i * 850);
               state.stopHandles.push(() => clearTimeout(t));
               return chord;
