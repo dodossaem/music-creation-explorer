@@ -1040,14 +1040,51 @@
       state.stopHandles.push(() => clearTimeout(end));
     }
 
+    function silenceSource(src) {
+      if (!src) return;
+      try { src.fadeOut = 0; } catch (_) {}
+      try { src.stop(Tone.now()); } catch (_) {}
+    }
+
+    // triggerAttackRelease는 음을 예약한 뒤 목록에서 지운다.
+    // releaseAll만 호출하면 이미 울리는 음이 남아서 다음 악기와 겹친다.
+    function trackSampler(sampler) {
+      if (!sampler || sampler._liveSources) return sampler;
+      const live = new Set();
+      sampler._liveSources = live;
+      const orig = sampler.triggerAttack.bind(sampler);
+      sampler.triggerAttack = (notes, time, velocity) => {
+        const result = orig(notes, time, velocity);
+        if (sampler._activeSources) {
+          sampler._activeSources.forEach((list) => {
+            (list || []).forEach((src) => live.add(src));
+          });
+        }
+        return result;
+      };
+      return sampler;
+    }
+
     function stopSamplerNow(sampler) {
       if (!sampler) return;
+      if (sampler._liveSources) {
+        sampler._liveSources.forEach(silenceSource);
+        sampler._liveSources.clear();
+      }
       if (sampler._activeSources && typeof sampler._activeSources.forEach === "function") {
         sampler._activeSources.forEach((list) => {
-          (list || []).forEach((src) => { try { src.fadeOut = 0; } catch (_) {} });
+          (list || []).forEach(silenceSource);
         });
       }
       try { sampler.releaseAll(); } catch (_) {}
+    }
+
+    function stopPlayerNow(player) {
+      if (!player) return;
+      if (player._activeSources && typeof player._activeSources.forEach === "function") {
+        player._activeSources.forEach((src) => silenceSource(src));
+      }
+      try { player.stop(); } catch (_) {}
     }
 
     function stopAll() {
@@ -1057,7 +1094,7 @@
       setPlaying(null);
       handles.forEach((fn) => { try { fn(); } catch (_) {} });
       Object.values(state.samplers).forEach(stopSamplerNow);
-      Object.values(state.players).forEach((p) => { try { p.stop(); } catch (_) {} });
+      Object.values(state.players).forEach(stopPlayerNow);
       if (state.piano) {
         try { state.piano.releaseAll(); } catch (_) {}
         try { state.piano.disconnect(); } catch (_) {}
@@ -1200,7 +1237,7 @@
         let lastErr = null;
         for (let attempt = 1; attempt <= 2; attempt++) {
           try {
-            const sampler = await loadSamplerOnce(inst);
+            const sampler = trackSampler(await loadSamplerOnce(inst));
             state.samplers[inst.id] = sampler;
             state.ready[inst.id] = true;
             return sampler;
