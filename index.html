@@ -325,7 +325,7 @@
       display: flex;
       width: max-content;
       min-width: 100%;
-      height: 160px;
+      height: 178px;
       margin: 0 auto;
       user-select: none;
     }
@@ -334,15 +334,32 @@
       border: 1px solid #2a3340;
       border-radius: 0 0 8px 8px;
       display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding-bottom: 8px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 2px;
+      padding-bottom: 6px;
       font-size: 0.68rem;
       font-weight: 700;
+      line-height: 1.05;
       transition: background 0.12s, box-shadow 0.12s, transform 0.08s;
     }
+    .key-chord {
+      font-size: 0.64rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: #8a4b12;
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .key-note {
+      font-size: 0.56rem;
+      font-weight: 700;
+      color: #66707c;
+    }
     .key.white {
-      width: 36px;
+      width: 46px;
       height: 100%;
       background: linear-gradient(180deg, #f7f3ea, #e7e0d2);
       color: #4a5564;
@@ -366,6 +383,14 @@
       background: linear-gradient(180deg, #ffe09a, #e8a23a);
       color: #1a1205;
       transform: translateY(1px);
+    }
+    .key.white.active .key-chord,
+    .key.white.active .key-note,
+    .key.black.active .key-chord { color: #1a1205; }
+    .key.black .key-chord:empty { display: none; }
+    .key.black .key-chord {
+      font-size: 0.58rem;
+      color: #f3d7a2;
     }
     .key.black.active {
       background: linear-gradient(180deg, #f0c674, #b87920);
@@ -452,7 +477,7 @@
     <section class="panel" id="panel-harmony">
       <div class="hint">
         장조는 밝고 안정적인 느낌, 단조는 어둡거나 긴장된 느낌이 나는 경우가 많아요.
-        아래 피아노에서 <strong>주황 표시 = 음계에 들어가는 건반</strong>, <strong>밝은 점등 = 지금 울리는 건반</strong>입니다.
+        흰 건반에는 그 음의 코드 이름이 적혀 있습니다. <strong>주황 테두리 = 이번 진행에 쓰이는 음</strong>, <strong>밝은 점등 = 지금 울리는 건반</strong>입니다.
       </div>
 
       <div class="piano-panel">
@@ -775,95 +800,96 @@
         id: "cinematic",
         title: "i – VI – III – VII",
         detail: "감정적이고 영화적인 느낌 (Cm – A♭ – E♭ – B♭)",
-        // Cm = C E♭ G / A♭ = A♭ C E♭ / E♭ = E♭ G B♭ / B♭ = B♭ D F
         chords: [["C4","Ds4","G4"],["Gs3","C4","Ds4"],["Ds4","G4","As4"],["As3","D4","F4"]],
         labels: ["Cm", "A♭", "E♭", "B♭"],
       },
       {
-        id: "resolve",
-        title: "ii – V – I",
-        detail: "긴장 후 안정적으로 해결되는 느낌 (Dm – G – C)",
-        chords: [["D4","F4","A4"],["G3","B3","D4"],["C4","E4","G4"]],
-        labels: ["Dm", "G", "C"],
+        id: "jazz-sevenths",
+        title: "ii7 – V7 – Imaj7",
+        detail: "재즈처럼 색이 진한 해결 (Dm7 – G7 – CM7)",
+        chords: [["D4","F4","A4","C5"],["G3","B3","D4","F4"],["C4","E4","G4","B4"]],
+        labels: ["Dm7", "G7", "CM7"],
       },
       {
-        id: "minor-tension",
+        id: "minor-a",
         title: "i – iv – V",
-        detail: "어둡다가 강하게 일어나는 느낌 (Cm – Fm – G)",
-        chords: [["C4","Ds4","G4"],["F3","Gs3","C4"],["G3","B3","D4"]],
-        labels: ["Cm", "Fm", "G"],
+        detail: "가단조로 어둡다가 밝게 일어남 (Am – Dm – E)",
+        chords: [["A3","C4","E4"],["D4","F4","A4"],["E4","Gs4","B4"]],
+        labels: ["Am", "Dm", "E"],
       },
       {
-        id: "fifties",
+        id: "fifties-f",
         title: "I – vi – IV – V",
-        detail: "고전적인 팝·동요 느낌 (C – Am – F – G)",
-        chords: [["C4","E4","G4"],["A3","C4","E4"],["F3","A3","C4"],["G3","B3","D4"]],
-        labels: ["C", "Am", "F", "G"],
+        detail: "바장조의 고전 팝·동요 느낌 (F – Dm – B♭ – C)",
+        chords: [["F3","A3","C4"],["D4","F4","A4"],["As3","D4","F4"],["C4","E4","G4"]],
+        labels: ["F", "Dm", "B♭", "C"],
       },
       {
-        id: "emotional-pop",
+        id: "emotional-g",
         title: "vi – IV – I – V",
-        detail: "서정적이고 감성적인 팝 느낌 (Am – F – C – G)",
-        chords: [["A3","C4","E4"],["F3","A3","C4"],["C4","E4","G4"],["G3","B3","D4"]],
-        labels: ["Am", "F", "C", "G"],
+        detail: "사장조의 서정적인 팝 (Em – C – G – D)",
+        chords: [["E4","G4","B4"],["C4","E4","G4"],["G3","B3","D4"],["D4","Fs4","A4"]],
+        labels: ["Em", "C", "G", "D"],
       },
       {
-        id: "basic-cadence",
+        id: "cadence-d",
         title: "I – IV – V – I",
-        detail: "가장 기본적인 해결 느낌 (C – F – G – C)",
-        chords: [["C4","E4","G4"],["F3","A3","C4"],["G3","B3","D4"],["C4","E4","G4"]],
-        labels: ["C", "F", "G", "C"],
+        detail: "라장조로 또렷하게 닫히는 기본 종지 (D – G – A – D)",
+        chords: [["D4","Fs4","A4"],["G3","B3","D4"],["A3","Cs4","E4"],["D4","Fs4","A4"]],
+        labels: ["D", "G", "A", "D"],
       },
       {
-        id: "andalusian",
+        id: "andalusian-a",
         title: "i – VII – VI – V",
-        detail: "하행하며 긴장감이 커지는 느낌 (Cm – B♭ – A♭ – G)",
-        chords: [["C4","Ds4","G4"],["As3","D4","F4"],["Gs3","C4","Ds4"],["G3","B3","D4"]],
-        labels: ["Cm", "B♭", "A♭", "G"],
+        detail: "가단조로 한 음씩 내려가는 긴장 (Am – G – F – E)",
+        chords: [["A3","C4","E4"],["G3","B3","D4"],["F3","A3","C4"],["E4","Gs4","B4"]],
+        labels: ["Am", "G", "F", "E"],
       },
       {
-        id: "soft-pop",
-        title: "I – V – vi – iii",
-        detail: "부드럽고 따뜻한 팝 느낌 (C – G – Am – Em)",
-        chords: [["C4","E4","G4"],["G3","B3","D4"],["A3","C4","E4"],["E3","G3","B3"]],
-        labels: ["C", "G", "Am", "Em"],
+        id: "bright-a",
+        title: "I – V – vi – IV",
+        detail: "가장조의 밝은 팝 (A – E – F♯m – D)",
+        chords: [["A3","Cs4","E4"],["E4","Gs4","B4"],["Fs3","A3","Cs4"],["D4","Fs4","A4"]],
+        labels: ["A", "E", "F♯m", "D"],
       },
       {
-        id: "rock-mixo",
+        id: "rock-g",
         title: "I – ♭VII – IV",
-        detail: "록·밴드에 자주 쓰는 시원한 느낌 (C – B♭ – F)",
-        chords: [["C4","E4","G4"],["As3","D4","F4"],["F3","A3","C4"]],
-        labels: ["C", "B♭", "F"],
+        detail: "사장조 록·밴드 느낌 (G – F – C)",
+        chords: [["G3","B3","D4"],["F3","A3","C4"],["C4","E4","G4"]],
+        labels: ["G", "F", "C"],
       },
       {
-        id: "plagal",
+        id: "plagal-f",
         title: "IV – I – V – I",
-        detail: "찬송·포크처럼 포근히 닫히는 느낌 (F – C – G – C)",
-        chords: [["F3","A3","C4"],["C4","E4","G4"],["G3","B3","D4"],["C4","E4","G4"]],
-        labels: ["F", "C", "G", "C"],
+        detail: "바장조로 포근히 닫히는 종지 (B♭ – F – C – F)",
+        chords: [["As3","D4","F4"],["F3","A3","C4"],["C4","E4","G4"],["F3","A3","C4"]],
+        labels: ["B♭", "F", "C", "F"],
       },
       {
-        id: "sad-walk",
-        title: "i – VI – III – iv",
-        detail: "슬프고 이야기하듯 이어지는 느낌 (Cm – A♭ – E♭ – Fm)",
-        chords: [["C4","Ds4","G4"],["Gs3","C4","Ds4"],["Ds4","G4","As4"],["F3","Gs3","C4"]],
-        labels: ["Cm", "A♭", "E♭", "Fm"],
+        id: "minor-d",
+        title: "i – iv – v – VI",
+        detail: "라단조의 이야기하는 하행 (Dm – Gm – Am – B♭)",
+        chords: [["D4","F4","A4"],["G3","As3","D4"],["A3","C4","E4"],["As3","D4","F4"]],
+        labels: ["Dm", "Gm", "Am", "B♭"],
       },
       {
-        id: "hopeful-minor",
-        title: "i – III – VII – iv",
-        detail: "어두운 속에서 조금 밝아지는 느낌 (Cm – E♭ – B♭ – Fm)",
-        chords: [["C4","Ds4","G4"],["Ds4","G4","As4"],["As3","D4","F4"],["F3","Gs3","C4"]],
-        labels: ["Cm", "E♭", "B♭", "Fm"],
+        id: "hopeful-e",
+        title: "i – iv – V – VI",
+        detail: "마단조에서 조금 밝아지는 느낌 (Em – Am – B – C)",
+        chords: [["E4","G4","B4"],["A3","C4","E4"],["B3","Ds4","Fs4"],["C4","E4","G4"]],
+        labels: ["Em", "Am", "B", "C"],
       },
       {
-        id: "jazz-turn",
-        title: "ii – V – I – vi",
-        detail: "재즈·시티팝에서 자주 도는 느낌 (Dm – G – C – Am)",
-        chords: [["D4","F4","A4"],["G3","B3","D4"],["C4","E4","G4"],["A3","C4","E4"]],
-        labels: ["Dm", "G", "C", "Am"],
+        id: "jazz-bb",
+        title: "ii7 – V7 – Imaj7 – vi7",
+        detail: "내림나장조 재즈 턴어라운드 (Cm7 – F7 – B♭M7 – Gm7)",
+        chords: [["C4","Ds4","G4","As4"],["F3","A3","C4","Ds4"],["As3","D4","F4","A4"],["G3","As3","D4","F4"]],
+        labels: ["Cm7", "F7", "B♭M7", "Gm7"],
       },
     ];
+
+    const WHITE_KEY_CHORDS = { C: "C", D: "Dm", E: "Em", F: "F", G: "G", A: "Am", B: "B°" };
 
     const MAJOR_SCALE = ["C4","D4","E4","F4","G4","A4","B4","C5"];
     const MINOR_SCALE = ["C4","D4","Ds4","F4","G4","Gs4","As4","C5"];
@@ -899,6 +925,7 @@
       loadPromises: {},
       piano: null,
       stopHandles: [],
+      playGen: 0,
       audioReady: false,
       startingAudio: false,
     };
@@ -947,6 +974,33 @@
       });
     }
 
+    function whiteKeyChord(note) {
+      const letter = String(note).replace(/s?\d+$/, "").charAt(0);
+      return WHITE_KEY_CHORDS[letter] || "";
+    }
+
+    function resetKeyChords() {
+      document.querySelectorAll(".key").forEach((el) => {
+        const chord = el.querySelector(".key-chord");
+        if (!chord) return;
+        chord.textContent = el.classList.contains("white") ? whiteKeyChord(el.dataset.note) : "";
+      });
+    }
+
+    function labelChordOnKey(note, label) {
+      const el = document.querySelector(`.key[data-note="${normNote(note)}"] .key-chord`);
+      if (el) el.textContent = label;
+    }
+
+    /** 진행에 나오는 코드를 각 루트 건반에 적음. 나머지 흰 건반은 기본 코드 이름을 유지 */
+    function labelProgressionChords(chords, labels) {
+      resetKeyChords();
+      (chords || []).forEach((chord, i) => {
+        const sorted = sortNotesByPitch(chord);
+        if (sorted.length) labelChordOnKey(sorted[0], labels[i] || "");
+      });
+    }
+
     function clearKeyboardActive() {
       document.querySelectorAll(".key.active").forEach((el) => el.classList.remove("active"));
     }
@@ -980,14 +1034,32 @@
       state.stopHandles.push(() => clearTimeout(end));
     }
 
+    function stopSamplerNow(sampler) {
+      if (!sampler) return;
+      if (sampler._activeSources && typeof sampler._activeSources.forEach === "function") {
+        sampler._activeSources.forEach((list) => {
+          (list || []).forEach((src) => { try { src.fadeOut = 0; } catch (_) {} });
+        });
+      }
+      try { sampler.releaseAll(); } catch (_) {}
+    }
+
     function stopAll() {
-      state.stopHandles.forEach((fn) => { try { fn(); } catch (_) {} });
+      state.playGen += 1;
+      const handles = state.stopHandles;
       state.stopHandles = [];
-      Object.values(state.samplers).forEach((s) => { try { s.releaseAll(); } catch (_) {} });
-      Object.values(state.players).forEach((p) => { try { p.stop(); } catch (_) {} });
-      if (state.piano) { try { state.piano.releaseAll(); } catch (_) {} }
-      clearKeyboardActive();
       setPlaying(null);
+      handles.forEach((fn) => { try { fn(); } catch (_) {} });
+      Object.values(state.samplers).forEach(stopSamplerNow);
+      Object.values(state.players).forEach((p) => { try { p.stop(); } catch (_) {} });
+      if (state.piano) {
+        try { state.piano.releaseAll(); } catch (_) {}
+        try { state.piano.disconnect(); } catch (_) {}
+        try { state.piano.dispose(); } catch (_) {}
+        state.piano = null;
+      }
+      clearKeyboardActive();
+      resetKeyChords();
     }
 
     function makeSynth() {
@@ -1170,6 +1242,7 @@
     async function playOneShot(inst) {
       if (!(await requireAudioReady())) return;
       stopAll();
+      const gen = state.playGen;
       setPlaying(inst.id);
       const url = `${SAMPLE_BASE}/${inst.folder}/${inst.oneShot}`;
       if (!state.players[inst.id]) {
@@ -1179,6 +1252,7 @@
           new Promise((resolve) => setTimeout(resolve, 5000)),
         ]);
       }
+      if (gen !== state.playGen) return;
       const player = state.players[inst.id];
       try { player.start(); } catch (_) { player.restart(); }
       const t = setTimeout(() => setPlaying(null), 1200);
@@ -1188,7 +1262,9 @@
     async function playNotes(inst, notes, noteSec = MELODY_NOTE_SEC, stepSec = MELODY_STEP_SEC) {
       if (!(await requireAudioReady())) return;
       stopAll();
+      const gen = state.playGen;
       const { voice, real } = await getVoice(inst, { allowFallback: false });
+      if (gen !== state.playGen) return;
       if (!voice || (!inst.synthOnly && !real)) {
         showAudioGuide(`「${inst.name}」음원을 불러오지 못했습니다. 네트워크를 확인한 뒤 다시 시도해 주세요. (피아노 소리로 대체하지 않습니다)`);
         return;
@@ -1212,6 +1288,7 @@
     async function playPhrase(inst) {
       if (!(await requireAudioReady())) return;
       stopAll();
+      const gen = state.playGen;
       setPlaying(inst.id);
       const key = "phrase-" + inst.id;
       const url = `${SAMPLE_BASE}/${inst.folder}/${inst.phrase}`;
@@ -1222,6 +1299,7 @@
           new Promise((resolve) => setTimeout(resolve, 8000)),
         ]);
       }
+      if (gen !== state.playGen) return 0;
       const player = state.players[key];
       try { player.start(); }
       catch (_) { try { player.restart(); } catch (e) {} }
@@ -1376,6 +1454,7 @@
       const chords = fitChordsToInstrument(progression.chords, inst);
       const allNotes = [...new Set(chords.flat())];
       setKeyboardScale(allNotes);
+      labelProgressionChords(chords, progression.labels);
 
       const step = 0.28;
       const noteDur = 0.85;
@@ -1431,13 +1510,13 @@
         key.type = "button";
         key.className = "key " + (isBlack ? "black" : "white");
         key.dataset.note = note;
-        if (isBlack) {
-          key.textContent = note.replace("s", "#").replace(/\d/, "");
-        } else if (note.startsWith("C") || note === "F2" || note === "G3" || note === "A4" || note === "E5") {
-          key.textContent = note;
-        } else {
-          key.textContent = "";
-        }
+        const chord = document.createElement("span");
+        chord.className = "key-chord";
+        chord.textContent = isBlack ? "" : whiteKeyChord(note);
+        const name = document.createElement("span");
+        name.className = "key-note";
+        name.textContent = isBlack ? note.replace("s", "#").replace(/\d/, "") : note;
+        key.append(chord, name);
         key.onclick = async () => {
           if (!(await requireAudioReady())) return;
           stopAll();
@@ -1635,8 +1714,10 @@
           const inst = resolveProgInstrument();
           if (!inst) return;
           stopAll();
+          const gen = state.playGen;
           setProgInstrumentMsg(`🎧 ${inst.name} 음원 불러오는 중… (첫 로드 1~3초)`, false);
           const { voice, real } = await getVoice(inst, { allowFallback: false });
+          if (gen !== state.playGen) return;
           if (!voice || (!inst.synthOnly && !real)) {
             const detail = state.lastLoadError ? ` (${state.lastLoadError})` : "";
             setProgInstrumentMsg(`「${inst.name}」음원을 불러오지 못했습니다.${detail} 악기 탭에서 해당 악기 ▶를 한 번 눌러 로드한 뒤 다시 시도해 주세요.`, true);
