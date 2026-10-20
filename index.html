@@ -320,17 +320,17 @@
       transition: background 0.12s, box-shadow 0.12s, transform 0.08s;
     }
     .key.white {
-      width: 42px;
+      width: 36px;
       height: 100%;
       background: linear-gradient(180deg, #f7f3ea, #e7e0d2);
       color: #4a5564;
       z-index: 1;
     }
     .key.black {
-      width: 28px;
+      width: 24px;
       height: 62%;
-      margin-left: -14px;
-      margin-right: -14px;
+      margin-left: -12px;
+      margin-right: -12px;
       background: linear-gradient(180deg, #3a4554, #171d26);
       color: #c9d4e2;
       z-index: 2;
@@ -434,8 +434,8 @@
       </div>
 
       <div class="piano-panel">
-        <h3>🎹 건반 위치 보기</h3>
-        <div class="piano-label" id="pianoLabel">버튼을 누르면 해당 음이 건반에 표시됩니다.</div>
+        <h3>🎹 건반 위치 보기 (C2–C6)</h3>
+        <div class="piano-label" id="pianoLabel">좌우로 스크롤해 전체 건반을 볼 수 있어요. 버튼을 누르면 해당 음이 표시됩니다.</div>
         <div class="piano-wrap">
           <div class="piano" id="piano"></div>
         </div>
@@ -479,7 +479,7 @@
     </section>
 
     <footer>
-      음원: Philharmonia Orchestra Sound Samples (공식 패키지) ·
+      음원: Philharmonia Orchestra Sound Samples · FluidR3 (마림바/실로폰/글로켄슈필/팀파니) ·
       오디오 엔진: Tone.js<br />
       GitHub Pages: <a href="https://dodossaem.github.io/music-creation-explorer/" style="color:var(--accent)">dodossaem.github.io/music-creation-explorer</a>
     </footer>
@@ -494,14 +494,15 @@
       return urls;
     }
 
-    // 짧은 멜로디: 약 5초 (15음 × 0.33초)
-    // 도-레-미-파-솔-라-시-도-시-라-솔-파-미-레-도
-    const MELODY_GAP_MS = 330;
-    const MELODY_DUR = "4n"; // 음이 겹치며 이어지도록 (스타카토 방지)
+    // 짧은 멜로디: 균등 박자 (붓점/절뚝임 방지) — 15음 × 0.38초 ≈ 5.7초
+    const MELODY_STEP_SEC = 0.38;
+    const MELODY_NOTE_SEC = 0.34;
     const MELODY_MID = ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"];
     const MELODY_LOW = ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"];
     const MELODY_HIGH = ["C5","D5","E5","F5","G5","A5","B5","C6","B5","A5","G5","F5","E5","D5","C5"];
     const MELODY_BASS = ["C2","D2","E2","F2","G2","A2","B2","C3","B2","A2","G2","F2","E2","D2","C2"];
+    const MELODY_MALLETS = ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"];
+    const MELODY_GLOCK = ["C5","D5","E5","F5","G5","A5","B5","C6","B5","A5","G5","F5","E5","D5","C5"];
 
     const CATEGORIES = [
       { id: "string", label: "현악기" },
@@ -515,21 +516,21 @@
         id: "violin", folder: "violin", category: "string", name: "바이올린", icon: "🎻",
         group: "현악기 · 실음원", desc: "높고 섬세하며 화려하게 뻗어나가는 음색",
         tags: ["맑음", "긴장감", "슬픔", "서정"],
-        urls: noteUrls(["A3","A4","A5","B3","B4","B5","C4","C5","C6","D4","D5","E4","E5","F4","F5","G3","G4","G5"]),
+        urls: noteUrls(["A3","A4","A5","As3","As4","As5","B3","B4","B5","C4","C5","C6","Cs4","Cs5","Cs6","D4","D5","D6","Ds4","Ds5","Ds6","E4","E5","E6","F4","F5","F6","Fs4","Fs5","Fs6","G3","G4","G5","G6","Gs3","Gs4","Gs5"]),
         demo: ["C4","E4","G4","C5"], melody: MELODY_MID,
       },
       {
         id: "viola", folder: "viola", category: "string", name: "비올라", icon: "🎻",
         group: "현악기 · 실음원", desc: "바이올린보다 낮고 부드럽고 따뜻한 중간 음역",
         tags: ["따뜻함", "차분함", "서정"],
-        urls: noteUrls(["A3","A4","B3","B4","C3","C4","C5","D3","D4","E3","E4","F3","F4","G3","G4"]),
+        urls: noteUrls(["A3","A4","A5","As3","As4","As5","B3","B4","B5","C3","C4","C5","C6","Cs3","Cs4","Cs5","D3","D4","D5","Ds3","Ds4","Ds5","E3","E4","E5","F3","F4","F5","Fs3","Fs4","Fs5","G3","G4","G5","Gs3","Gs4","Gs5"]),
         demo: ["C3","G3","C4"], melody: MELODY_MID,
       },
       {
         id: "cello", folder: "cello", category: "string", name: "첼로", icon: "🎻",
         group: "현악기 · 실음원", desc: "낮고 따뜻하며 깊은 울림을 주는 소리",
         tags: ["따뜻함", "웅장함", "진지함"],
-        urls: noteUrls(["A2","A3","B2","B3","C2","C3","C4","D2","D3","E2","E3","F2","F3","G2","G3"]),
+        urls: noteUrls(["A2","A3","A4","As2","As3","As4","B2","B3","B4","C2","C3","C4","C5","Cs2","Cs3","Cs4","D2","D3","D4","Ds2","Ds3","Ds4","E2","E3","E4","F2","F3","F4","Fs2","Fs3","Fs4","G2","G3","G4","Gs2","Gs3","Gs4"]),
         demo: ["C2","E3","C3"], melody: MELODY_LOW,
       },
       {
@@ -543,7 +544,7 @@
         id: "guitar", folder: "guitar", category: "string", name: "기타", icon: "🎸",
         group: "현악기 · 실음원", desc: "친근하고 리듬감 있으며 다양한 분위기를 만드는 소리",
         tags: ["친근함", "리듬", "서정"],
-        urls: noteUrls(["A2","A3","A4","B2","B3","B4","C3","C4","D3","D4","E2","E3","E4","F2","F3","F4","G2","G3","G4"]),
+        urls: noteUrls(["A2","A3","A4","As2","As3","As4","B2","B3","B4","C3","C4","Cs3","Cs4","D3","D4","D5","Ds3","Ds4","E2","E3","E4","E5","F2","F3","F4","Fs2","Fs3","Fs4","G2","G3","G4","G5","Gs2","Gs3","Gs4"]),
         demo: ["E2","A2","D3","G3"], melody: MELODY_LOW,
       },
       {
@@ -613,14 +614,14 @@
         id: "saxophone", folder: "saxophone", category: "woodwind", name: "색소폰", icon: "🎷",
         group: "목관악기 · 실음원", desc: "부드럽고 감성적이며 재즈적인 매력의 소리",
         tags: ["감성", "부드러움", "도시적"],
-        urls: noteUrls(["A3","A4","B3","B4","C4","D3","D4","E3","E4","F3","F4","G3","G4"]),
+        urls: noteUrls(["A3","A4","A5","As3","As4","As5","B3","B4","B5","C4","C5","C6","Cs4","Cs5","D3","D4","D5","Ds3","Ds4","Ds5","E3","E4","E5","F3","F4","F5","Fs3","Fs4","Fs5","G3","G4","G5","Gs3","Gs4","Gs5"]),
         demo: ["C4","E4","G4"], melody: MELODY_MID,
       },
       {
         id: "trumpet", folder: "trumpet", category: "brass", name: "트럼펫", icon: "🎺",
         group: "금관악기 · 실음원", desc: "밝고 또렷하며 화려하게 선언하는 소리",
         tags: ["밝음", "자신감", "화려함"],
-        urls: noteUrls(["A3","A4","A5","B3","B4","B5","C4","C5","C6","D4","D5","E3","E4","E5","F3","F4","F5","G3","G4","G5"]),
+        urls: noteUrls(["A3","A4","A5","As3","As4","As5","B3","B4","B5","C4","C5","C6","Cs4","Cs5","D4","D5","Ds3","Ds4","Ds5","E3","E4","E5","F3","F4","F5","Fs4","Fs5","G3","G4","G5","Gs3","Gs4","Gs5"]),
         demo: ["C4","E4","G4","C5"], melody: MELODY_MID,
       },
       {
@@ -634,14 +635,42 @@
         id: "trombone", folder: "trombone", category: "brass", name: "트롬본", icon: "🎺",
         group: "금관악기 · 실음원", desc: "굵고 힘 있으며 활기차게 밀고 나가는 소리",
         tags: ["힘", "활기", "웅장함"],
-        urls: noteUrls(["A2","A3","B2","B3","C3","C4","D3","E2","E3","F2","F3","G2","G3"]),
+        urls: noteUrls(["A2","A3","A4","As2","As3","As4","B2","B3","B4","C3","C4","C5","Cs3","Cs4","Cs5","D3","D4","D5","Ds3","Ds4","Ds5","E2","E3","E4","E5","F2","F3","F4","F5","Fs2","Fs3","Fs4","G2","G3","G4","G5","Gs2","Gs3","Gs4"]),
         demo: ["C3","G3","C4"], melody: MELODY_LOW,
       },
       {
         id: "tuba", folder: "tuba", category: "brass", name: "튜바", icon: "🎺",
         group: "금관악기 · 실음원", desc: "가장 낮고 묵직하게 바닥을 받쳐주는 소리",
         tags: ["무게감", "든든함", "웅장함"],
-        urls: noteUrls(["A1","A2","A3","B1","B2","B3","C1","C2","C3","D1","D2","D3","E1","E2","E3","F1","F2","F3","G1","G2","G3"]),
+        urls: noteUrls(["A1","A2","A3","As1","As2","As3","B1","B2","B3","C1","C2","C3","C4","Cs1","Cs2","Cs3","D1","D2","D3","Ds2","Ds3","E2","E3","F1","F2","F3","Fs1","Fs2","Fs3","G1","G2","G3","Gs1","Gs2","Gs3"]),
+        demo: ["C2","G2","C3"], melody: MELODY_BASS,
+      },
+      {
+        id: "marimba", folder: "marimba", category: "perc", name: "마림바", icon: "🪵",
+        group: "타악기 · 실음원", desc: "나무 건반의 따뜻하고 둥근 울림",
+        tags: ["따뜻함", "리듬", "서정"],
+        urls: noteUrls(["A2","A3","A4","A5","B2","B3","B4","B5","C2","C3","C4","C5","C6","D2","D3","D4","D5","E2","E3","E4","E5","F2","F3","F4","F5","G2","G3","G4","G5"]),
+        demo: ["C3","E3","G3","C4"], melody: MELODY_MALLETS,
+      },
+      {
+        id: "xylophone", folder: "xylophone", category: "perc", name: "실로폰", icon: "🪵",
+        group: "타악기 · 실음원", desc: "딱딱하고 밝은 나무 타격음",
+        tags: ["밝음", "경쾌함", "리듬"],
+        urls: noteUrls(["A3","A4","A5","B3","B4","B5","C3","C4","C5","C6","D3","D4","D5","E3","E4","E5","F3","F4","F5","G3","G4","G5"]),
+        demo: ["C4","E4","G4"], melody: MELODY_MALLETS,
+      },
+      {
+        id: "glockenspiel", folder: "glockenspiel", category: "perc", name: "글로켄슈필", icon: "🔔",
+        group: "타악기 · 실음원", desc: "종처럼 맑고 반짝이는 금속 건반 소리",
+        tags: ["맑음", "반짝임", "가벼움"],
+        urls: noteUrls(["A4","A5","B4","B5","C4","C5","C6","D4","D5","D6","E4","E5","E6","F4","F5","F6","G4","G5","G6"]),
+        demo: ["C5","E5","G5"], melody: MELODY_GLOCK,
+      },
+      {
+        id: "timpani", folder: "timpani", category: "perc", name: "팀파니", icon: "🥁",
+        group: "타악기 · 실음원", desc: "낮고 웅장한 tuned 북 소리",
+        tags: ["웅장함", "무게감", "긴장감"],
+        urls: noteUrls(["A2","A3","B2","B3","C2","C3","C4","D2","D3","E2","E3","F2","F3","G2","G3"]),
         demo: ["C2","G2","C3"], melody: MELODY_BASS,
       },
       {
@@ -784,15 +813,24 @@
     const MINOR_SCALE = ["C4","D4","Ds4","F4","G4","Gs4","As4","C5"];
     const MAJOR_CHORD = ["C4","E4","G4","C5"];
     const MINOR_CHORD = ["C4","Ds4","G4","C5"];
-    // C3 ~ C5
-    const PIANO_NOTES = [
-      "C3","Cs3","D3","Ds3","E3","F3","Fs3","G3","Gs3","A3","As3","B3",
-      "C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4","A4","As4","B4","C5",
-    ];
+    // C2 ~ C6 전체 건반
+    const PIANO_NOTES = (() => {
+      const names = ["C","Cs","D","Ds","E","F","Fs","G","Gs","A","As","B"];
+      const out = [];
+      for (let oct = 2; oct <= 6; oct++) {
+        for (const n of names) {
+          if (oct === 6 && n !== "C") break;
+          out.push(n + oct);
+        }
+      }
+      return out;
+    })();
     const ENHARMONIC = {
+      "Db2":"Cs2","Eb2":"Ds2","Gb2":"Fs2","Ab2":"Gs2","Bb2":"As2",
       "Db3":"Cs3","Eb3":"Ds3","Gb3":"Fs3","Ab3":"Gs3","Bb3":"As3",
       "Db4":"Cs4","Eb4":"Ds4","Gb4":"Fs4","Ab4":"Gs4","Bb4":"As4",
       "Db5":"Cs5","Eb5":"Ds5","Gb5":"Fs5","Ab5":"Gs5","Bb5":"As5",
+      "Db6":"Cs6","Eb6":"Ds6","Gb6":"Fs6","Ab6":"Gs6","Bb6":"As6",
     };
 
     const state = {
@@ -976,6 +1014,8 @@
         const sampler = new Tone.Sampler({
           urls,
           baseUrl,
+          attack: 0.01,
+          release: 0.35,
           onload: () => {
             if (settled) return;
             settled = true;
@@ -1058,7 +1098,7 @@
       state.stopHandles.push(() => clearTimeout(t));
     }
 
-    async function playNotes(inst, notes, duration = "2n", gapMs = 0) {
+    async function playNotes(inst, notes, noteSec = MELODY_NOTE_SEC, stepSec = MELODY_STEP_SEC) {
       if (!(await requireAudioReady())) return;
       stopAll();
       const { voice, real } = await getVoice(inst, { allowFallback: false });
@@ -1069,16 +1109,16 @@
       setPlaying(inst.id);
       const now = Tone.now();
       notes.forEach((n, i) => {
-        voice.triggerAttackRelease(n, duration, now + i * (gapMs / 1000));
+        voice.triggerAttackRelease(toToneNote(n), noteSec, now + i * stepSec);
       });
-      const total = gapMs * Math.max(notes.length - 1, 0) + Tone.Time(duration).toMilliseconds() + 200;
+      const total = (stepSec * Math.max(notes.length - 1, 0) + noteSec) * 1000 + 200;
       const timer = setTimeout(() => setPlaying(null), total);
       state.stopHandles.push(() => clearTimeout(timer));
     }
 
     async function playMelody(inst) {
       if (inst.oneShot) return playOneShot(inst);
-      return playNotes(inst, inst.melody, MELODY_DUR, MELODY_GAP_MS);
+      return playNotes(inst, inst.melody);
     }
 
     function findInstrumentByName(raw) {
@@ -1093,6 +1133,11 @@
         "스네어드럼": "스네어 드럼",
         "베이스드럼": "베이스 드럼",
         "트럼본": "트롬본",
+        "글로켄": "글로켄슈필",
+        "글로켄스필": "글로켄슈필",
+        "실로폰": "실로폰",
+        "팀파니": "팀파니",
+        "마림바": "마림바",
       };
       const mapped = aliases[q] || aliases[(raw || "").trim()] || (raw || "").trim();
       const inst = INSTRUMENTS.find((i) =>
@@ -1147,7 +1192,7 @@
         key.dataset.note = note;
         if (isBlack) {
           key.textContent = note.replace("s", "#").replace(/\d/, "");
-        } else if (note.startsWith("C") || note === "E4" || note === "G4" || note === "A4") {
+        } else if (note.startsWith("C") || note === "F2" || note === "G3" || note === "A4" || note === "E5") {
           key.textContent = note;
         } else {
           key.textContent = "";
@@ -1157,7 +1202,7 @@
           stopAll();
           if (!state.piano) state.piano = makeSynth();
           setKeyboardActive([note]);
-          state.piano.triggerAttackRelease(note, "8n");
+          state.piano.triggerAttackRelease(toToneNote(note), "8n");
           $("pianoLabel").textContent = `건반: ${note.replace("s", "#")}`;
           const t = setTimeout(() => clearKeyboardActive(), 500);
           state.stopHandles.push(() => clearTimeout(t));
@@ -1259,9 +1304,11 @@
           return;
         }
         const now = Tone.now();
-        inst.melody.forEach((n, i) => voice.triggerAttackRelease(n, MELODY_DUR, now + i * (MELODY_GAP_MS / 1000)));
+        inst.melody.forEach((n, i) => {
+          voice.triggerAttackRelease(toToneNote(n), MELODY_NOTE_SEC, now + i * MELODY_STEP_SEC);
+        });
         await new Promise((r) => {
-          const t = setTimeout(r, inst.melody.length * MELODY_GAP_MS + 600);
+          const t = setTimeout(r, inst.melody.length * MELODY_STEP_SEC * 1000 + 600);
           state.stopHandles.push(() => clearTimeout(t));
         });
         if (!state.playingId) break;
