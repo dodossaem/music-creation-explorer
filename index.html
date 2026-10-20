@@ -431,7 +431,7 @@
     <section class="panel active" id="panel-instruments">
       <div class="hint">
         같은 악기도 연주 방법과 음의 높이에 따라 다양한 느낌을 표현할 수 있어요.
-        공식 녹음에 이어진 프레이즈가 있는 악기는 그 녹음을 그대로 틀고, 없는 악기는 짧은 선율을 이어 듣습니다.
+        공식 녹음에 이어진 프레이즈가 있는 악기는 그 녹음을 그대로 틀고, 기타처럼 프레이즈 녹음이 없는 악기는 긴 음을 끊지 않고 이어 듣습니다.
       </div>
 
       <div class="cats" id="categoryBar"></div>
@@ -552,7 +552,8 @@
 
     const INSTRUMENTS = [
       {
-        id: "violin", folder: "violin", category: "string", name: "바이올린", icon: "🎻",
+        id: "violin", folder: "violin",
+        phrase: "phrase.mp3", category: "string", name: "바이올린", icon: "🎻",
         group: "현악기 · 실음원", desc: "높고 섬세하며 화려하게 뻗어나가는 음색",
         tags: ["맑음", "긴장감", "슬픔", "서정"],
         urls: noteUrls(["C5","Cs5","D5","Ds5","E5","F5","Fs5","G5","Gs5","A5","As5","B5","C6","Cs6","D6","Ds6","E6"]),
@@ -588,6 +589,8 @@
         tags: ["친근함", "리듬", "서정"],
         urls: noteUrls(["Ds3","E3","F3","Fs3","G3","Gs3","A3","As3","B3","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4"]),
         demo: ["F3","G3","A3","B3"], melody: ["F3","G3","A3","B3","C4","D4","E4","F4","E4","D4","C4","B3"],
+        // 공식 프레이즈 파일이 없음. 3~8초짜리 공식 롱톤을 겹쳐 끊기지 않게 이어 들음
+        line: { notes: ["F3","A3","C4","E4"], step: 1.65, dur: 3.1 },
       },
       {
         id: "mandolin", folder: "mandolin", category: "string", name: "만돌린", icon: "🎸",
@@ -1234,6 +1237,7 @@
     async function playMelody(inst) {
       if (inst.oneShot) return playOneShot(inst);
       if (inst.phrase) return playPhrase(inst);
+      if (inst.line) return playNotes(inst, inst.line.notes, inst.line.dur, inst.line.step);
       return playNotes(inst, inst.melody);
     }
 
@@ -1485,7 +1489,7 @@
           <div class="desc">“${inst.desc}”</div>
           <div class="tags">${inst.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>
           <button class="btn btn-primary btn-full" data-act="play">
-            ${inst.oneShot ? "▶ 소리 듣기" : inst.phrase ? "♪ 공식 프레이즈" : "♪ 짧은 선율"}
+            ${inst.oneShot ? "▶ 소리 듣기" : inst.phrase ? "♪ 공식 프레이즈" : inst.line ? "♪ 이어진 선율" : "♪ 짧은 선율"}
           </button>
           ${canCompare ? `<button class="btn ${inCompare ? "btn-primary" : "btn-ghost"} btn-full" style="margin-top:8px" data-act="compare">
             ${inCompare ? "✓ 비교함에 담김" : "+ 비교함에 담기"}
@@ -1538,6 +1542,16 @@
           const dur = await playPhrase(inst);
           await new Promise((r) => {
             const t = setTimeout(r, (dur || 8) * 1000 + 350);
+            state.stopHandles.push(() => clearTimeout(t));
+          });
+          if (!state.playingId) break;
+          continue;
+        }
+        if (inst.line) {
+          await playNotes(inst, inst.line.notes, inst.line.dur, inst.line.step);
+          const total = (inst.line.step * Math.max(inst.line.notes.length - 1, 0) + inst.line.dur) * 1000 + 400;
+          await new Promise((r) => {
+            const t = setTimeout(r, total);
             state.stopHandles.push(() => clearTimeout(t));
           });
           if (!state.playingId) break;
