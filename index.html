@@ -937,6 +937,11 @@
       return ENHARMONIC[n] || n;
     }
 
+    // 건반 data-note는 Cs4처럼 s를 쓰고, 재생 음은 C#4일 수 있다
+    function keyNoteId(n) {
+      return String(normNote(n)).replace(/([A-G])#(\d)/g, "$1s$2");
+    }
+
     // 건반은 Cs/Ds 표기, Tone.js 재생은 C#/D# 표기가 필요함 (Ds4면 첫 코드에서 예외로 진행이 끊김)
     function toToneNote(n) {
       return String(normNote(n)).replace(/([A-G])s(\d)/g, "$1#$2");
@@ -989,7 +994,7 @@
     }
 
     function labelChordOnKey(note, label) {
-      const el = document.querySelector(`.key[data-note="${normNote(note)}"] .key-chord`);
+      const el = document.querySelector(`.key[data-note="${keyNoteId(note)}"] .key-chord`);
       if (el) el.textContent = label;
     }
 
@@ -1009,7 +1014,7 @@
     function setKeyboardScale(notes) {
       document.querySelectorAll(".key").forEach((el) => el.classList.remove("scale", "active"));
       (notes || []).forEach((n) => {
-        const el = document.querySelector(`.key[data-note="${normNote(n)}"]`);
+        const el = document.querySelector(`.key[data-note="${keyNoteId(n)}"]`);
         if (el) el.classList.add("scale");
       });
     }
@@ -1017,7 +1022,7 @@
     function setKeyboardActive(notes) {
       clearKeyboardActive();
       (notes || []).forEach((n) => {
-        const el = document.querySelector(`.key[data-note="${normNote(n)}"]`);
+        const el = document.querySelector(`.key[data-note="${keyNoteId(n)}"]`);
         if (el) el.classList.add("active");
       });
     }
@@ -1431,12 +1436,9 @@
       });
     }
 
-    /** 악기 멜로디 음역에 맞게 코드 옥타브를 옮김 */
-    function fitChordsToInstrument(chords, inst) {
-      const ref = (inst.melody && inst.melody[Math.floor(inst.melody.length / 2)]) || "C4";
-      const delta = noteOctave(ref) - 4;
-      if (!delta) return chords.map((c) => c.map(normNote));
-      return chords.map((chord) => chord.map((n) => shiftNoteOctave(normNote(n), delta)));
+    /** 코드는 적힌 옥타브 그대로 친다. 건반에 보이는 음과 소리가 어긋나지 않게 */
+    function fitChordsToInstrument(chords) {
+      return chords.map((c) => c.map(normNote));
     }
 
     /** Music Lab 스타일: 코드를 아르페지오 음열로 펼침 */
@@ -1452,7 +1454,7 @@
     }
 
     function playArpeggioProgression(voice, inst, progression, pattern) {
-      const chords = fitChordsToInstrument(progression.chords, inst);
+      const chords = fitChordsToInstrument(progression.chords);
       const allNotes = [...new Set(chords.flat())];
       setKeyboardScale(allNotes);
       labelProgressionChords(chords, progression.labels);
@@ -1490,6 +1492,12 @@
           setKeyboardActive([ev.note]);
           if (ev.isChordStart) {
             $("pianoLabel").textContent = `${inst.name} · ${progression.title} → ${ev.label}`;
+            const key = document.querySelector(`.key[data-note="${keyNoteId(ev.note)}"]`);
+            const wrap = key && key.closest(".piano-wrap");
+            if (wrap) {
+              const left = key.offsetLeft - (wrap.clientWidth - key.clientWidth) / 2;
+              wrap.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+            }
           }
         }, ev.time * 1000);
         state.stopHandles.push(() => clearTimeout(t1));
