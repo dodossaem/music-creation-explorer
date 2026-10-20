@@ -439,7 +439,7 @@
 
       <div class="compare">
         <h2>🔍 악기 비교함 <span id="compareCount">(0/4)</span></h2>
-        <p>같은 짧은 멜로디(약 5초, 도레미파솔라시도…)를 선택한 악기로 차례대로 들어볼 수 있어요. 최대 4개까지 담을 수 있습니다. (타악기는 비교함 제외)</p>
+        <p>같은 짧은 구절(약 3–5초)을 선택한 악기로 차례대로 들어볼 수 있어요. 최대 4개까지 담을 수 있습니다. (타악기는 비교함 제외)</p>
         <div class="chips" id="compareChips"></div>
         <div class="actions" style="grid-template-columns: 1fr 1fr 1fr;">
           <button class="btn btn-primary" id="playCompareBtn">▶ 비교 연주</button>
@@ -520,21 +520,22 @@
   <script>
     const SAMPLE_BASE = "./samples";
 
+    function toToneKey(n) {
+      // Tone.Sampler 키는 C#4, 디스크 파일은 Cs4.mp3
+      return String(n).replace(/([A-G])s(\d)/g, "$1#$2");
+    }
+
     function noteUrls(notes) {
       const urls = {};
       notes.forEach((n) => {
-        const file = `${n}.mp3`;
-        urls[n] = file;
-        // Tone.js는 A#4 표기를 더 안정적으로 인식 — 같은 파일에 별칭 추가
-        const sharp = String(n).replace(/([A-G])s(\d)/g, "$1#$2");
-        if (sharp !== n) urls[sharp] = file;
+        urls[toToneKey(n)] = `${n}.mp3`;
       });
       return urls;
     }
 
-    // 도레미파솔라시도: 음 사이 살짝 끊어서 음정이 분명히 들리게
-    const MELODY_STEP_SEC = 0.46;
-    const MELODY_NOTE_SEC = 0.40;
+    // 악기별 짧은 구절 (~3–5초)
+    const MELODY_STEP_SEC = 0.40;
+    const MELODY_NOTE_SEC = 0.36;
     const MELODY_MID = ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"];
     const MELODY_LOW = ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"];
     const MELODY_HIGH = ["C5","D5","E5","F5","G5","A5","B5","C6","B5","A5","G5","F5","E5","D5","C5"];
@@ -554,50 +555,50 @@
         id: "violin", folder: "violin", category: "string", name: "바이올린", icon: "🎻",
         group: "현악기 · 실음원", desc: "높고 섬세하며 화려하게 뻗어나가는 음색",
         tags: ["맑음", "긴장감", "슬픔", "서정"],
-        urls: noteUrls(["A3","As3","B3","G3","Gs3","A4","As4","B4","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4","A5","As5","B5","C5","Cs5","D5","Ds5","E5","F5","Fs5","G5","Gs5"]),
-        demo: ["C4","E4","G4","C5"], melody: ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"],
+        urls: noteUrls(["B4","C5","Cs5","D5","Ds5","E5","F5","Fs5","G5","Gs5","A5","As5","B5","C6","Cs6","D6","Ds6","E6","F6"]),
+        demo: ["D5","E5","F5","G5"], melody: ["D5","E5","F5","G5","A5","B5","C6","D6","C6","B5","A5","G5"],
       },
       {
         id: "viola", folder: "viola", category: "string", name: "비올라", icon: "🎻",
         group: "현악기 · 실음원", desc: "바이올린보다 낮고 부드럽고 따뜻한 중간 음역",
         tags: ["따뜻함", "차분함", "서정"],
-        urls: noteUrls(["A3","As3","B3","C3","Cs3","D3","Ds3","E3","F3","Fs3","G3","Gs3","A4","As4","B4","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4"]),
-        demo: ["C3","G3","C4"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["Fs4","G4","Gs4","A4","As4","B4","C5","Cs5","D5","Ds5","E5","F5","Fs5","G5","Gs5","A5","As5","B5","C6"]),
+        demo: ["A4","B4","C5","D5"], melody: ["A4","B4","C5","D5","E5","F5","G5","A5","G5","F5","E5","D5"],
       },
       {
         id: "cello", folder: "cello", category: "string", name: "첼로", icon: "🎻",
         group: "현악기 · 실음원", desc: "낮고 따뜻하며 깊은 울림을 주는 소리",
         tags: ["따뜻함", "웅장함", "진지함"],
-        urls: noteUrls(["A2","As2","B2","C2","Cs2","D2","Ds2","E2","F2","Fs2","G2","Gs2","A3","As3","B3","C3","Cs3","D3","Ds3","E3","F3","Fs3","G3","Gs3","A4","As4","B4","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4"]),
-        demo: ["C2","E3","C3"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["E3","F3","Fs3","G3","Gs3","A3","As3","B3","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4","A4","As4"]),
+        demo: ["G3","A3","B3","C4"], melody: ["G3","A3","B3","C4","D4","E4","F4","G4","F4","E4","D4","C4"],
       },
       {
         id: "double-bass", folder: "double-bass", category: "string", name: "콘트라베이스", icon: "🎻",
         group: "현악기 · 실음원", desc: "가장 낮은 현악기로 무겁고 든든한 받침 역할",
         tags: ["무게감", "진지함", "든든함"],
-        urls: noteUrls(["A1","B1","C1","D1","E1","F1","G1","A2","B2","C2","D2","E2","F2","G2","C3","D3","E3"]),
-        demo: ["E1","A1","D2"], melody: ["C2","D2","E2","F2","G2","A2","B2","C3","B2","A2","G2","F2","E2","D2","C2"],
+        urls: noteUrls(["G1","A1","B1","C2","D2","E2","F2","G2","A2","B2","C3"]),
+        demo: ["A1","B1","C2","D2"], melody: ["A1","B1","C2","D2","E2","F2","G2","A2","G2","F2","E2","D2"],
       },
       {
         id: "guitar", folder: "guitar", category: "string", name: "기타", icon: "🎸",
         group: "현악기 · 실음원", desc: "친근하고 리듬감 있으며 다양한 분위기를 만드는 소리",
         tags: ["친근함", "리듬", "서정"],
-        urls: noteUrls(["A2","As2","B2","E2","F2","Fs2","G2","Gs2","A3","As3","B3","C3","Cs3","D3","Ds3","E3","F3","Fs3","G3","Gs3","A4","As4","B4","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4"]),
-        demo: ["E2","A2","D3","G3"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["D3","Ds3","E3","F3","Fs3","G3","Gs3","A3","As3","B3","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4"]),
+        demo: ["F3","G3","A3","B3"], melody: ["F3","G3","A3","B3","C4","D4","E4","F4","E4","D4","C4","B3"],
       },
       {
         id: "mandolin", folder: "mandolin", category: "string", name: "만돌린", icon: "🎸",
         group: "현악기 · 실음원", desc: "반짝이고 가벼운 트레몰로 느낌의 소리",
         tags: ["가벼움", "반짝임", "민속"],
-        urls: noteUrls(["A3","B3","G3","A4","B4","C4","D4","E4","F4","G4","A5","B5","C5","D5","E5","F5","G5"]),
-        demo: ["D4","G4","B4"], melody: ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"],
+        urls: noteUrls(["D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5"]),
+        demo: ["F4","G4","A4","B4"], melody: ["F4","G4","A4","B4","C5","D5","E5","F5","E5","D5","C5","B4"],
       },
       {
         id: "banjo", folder: "banjo", category: "string", name: "밴조", icon: "🪕",
         group: "현악기 · 실음원", desc: "톡톡 튀고 경쾌한 민속적 리듬의 소리",
         tags: ["경쾌함", "민속", "리듬"],
-        urls: noteUrls(["A3","B3","C3","D3","E3","F3","G3","A4","B4","C4","D4","E4","F4","G4"]),
-        demo: ["G3","C4","G4"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["B3","C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5"]),
+        demo: ["D4","E4","F4","G4"], melody: ["D4","E4","F4","G4","A4","B4","C5","D5","C5","B4","A4","G4"],
       },
       {
         id: "piano", folder: null, category: "string", name: "피아노", icon: "🎹",
@@ -610,106 +611,106 @@
         id: "flute", folder: "flute", category: "woodwind", name: "플루트", icon: "🎶",
         group: "목관악기 · 실음원", desc: "맑고 가볍고 공기처럼 부드럽게 흐르는 소리",
         tags: ["평화", "자연", "가벼움", "맑음"],
-        urls: noteUrls(["A4","B4","C4","D4","E4","F4","G4","A5","B5","C5","D5","E5","F5","G5"]),
-        demo: ["C5","E5","A4"], melody: ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"],
+        urls: noteUrls(["E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5"]),
+        demo: ["G4","A4","B4","C5"], melody: ["G4","A4","B4","C5","D5","E5","F5","G5","F5","E5","D5","C5"],
       },
       {
         id: "oboe", folder: "oboe", category: "woodwind", name: "오보에", icon: "🎶",
         group: "목관악기 · 실음원", desc: "코끝처럼 또렷하고 애틋하며 표현력이 강한 소리",
         tags: ["슬픔", "서정", "또렷함"],
-        urls: noteUrls(["B3","A4","B4","C4","D4","E4","F4","G4","A5","B5","C5","D5","E5","F5","G5"]),
-        demo: ["C4","E4","G4"], melody: ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"],
+        urls: noteUrls(["E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5"]),
+        demo: ["G4","A4","B4","C5"], melody: ["G4","A4","B4","C5","D5","E5","F5","G5","F5","E5","D5","C5"],
       },
       {
         id: "clarinet", folder: "clarinet", category: "woodwind", name: "클라리넷", icon: "🎶",
         group: "목관악기 · 실음원", desc: "부드럽고 둥글며 이야기하듯 표현력 있는 소리",
         tags: ["부드러움", "신비", "서정"],
-        urls: noteUrls(["A3","B3","D3","E3","F3","G3","A4","B4","C4","D4","E4","F4","G4","C5"]),
-        demo: ["C4","E4","G4"], melody: ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"],
+        urls: noteUrls(["G3","A3","B3","C4","D4","E4","F4","G4","A4","B4","C5"]),
+        demo: ["A3","B3","C4","D4"], melody: ["A3","B3","C4","D4","E4","F4","G4","A4","G4","F4","E4","D4"],
       },
       {
         id: "bass-clarinet", folder: "bass-clarinet", category: "woodwind", name: "베이스 클라리넷", icon: "🎶",
         group: "목관악기 · 실음원", desc: "낮고 그윽하며 어두운 분위기를 만드는 소리",
         tags: ["어두움", "신비", "무게감"],
-        urls: noteUrls(["A2","B2","D2","E2","F2","G2","A3","B3","C3","D3","E3","F3","G3","C4"]),
-        demo: ["C2","E2","C3"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["G2","A2","B2","C3","D3","E3","F3","G3","A3","B3","C4"]),
+        demo: ["A2","B2","C3","D3"], melody: ["A2","B2","C3","D3","E3","F3","G3","A3","G3","F3","E3","D3"],
       },
       {
         id: "bassoon", folder: "bassoon", category: "woodwind", name: "바순", icon: "🎶",
         group: "목관악기 · 실음원", desc: "낮고 따뜻한 나무 질감의 유머러스한 울림",
         tags: ["따뜻함", "진지함", "유머"],
-        urls: noteUrls(["A2","B2","C2","D2","E2","F2","G2","A3","B3","C3","D3","E3","F3","G3","C4"]),
-        demo: ["C2","G2","C3"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["E2","F2","G2","A2","B2","C3","D3","E3","F3","G3","A3"]),
+        demo: ["G2","A2","B2","C3"], melody: ["G2","A2","B2","C3","D3","E3","F3","G3","F3","E3","D3","C3"],
       },
       {
         id: "cor-anglais", folder: "cor-anglais", category: "woodwind", name: "잉글리시 호른", icon: "🎶",
         group: "목관악기 · 실음원", desc: "오보에보다 낮고 애잔하며 영화적인 소리",
         tags: ["슬픔", "서정", "영화적"],
-        urls: noteUrls(["A3","B3","E3","F3","G3","A4","B4","C4","D4","E4","F4","G4","C5"]),
-        demo: ["E3","G3","C4"], melody: ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"],
+        urls: noteUrls(["G3","A3","B3","C4","D4","E4","F4","G4","A4","B4","C5"]),
+        demo: ["A3","B3","C4","D4"], melody: ["A3","B3","C4","D4","E4","F4","G4","A4","G4","F4","E4","D4"],
       },
       {
         id: "saxophone", folder: "saxophone", category: "woodwind", name: "색소폰", icon: "🎷",
         group: "목관악기 · 실음원", desc: "부드럽고 감성적이며 재즈적인 매력의 소리",
         tags: ["감성", "부드러움", "도시적"],
-        urls: noteUrls(["A3","As3","B3","D3","Ds3","E3","F3","Fs3","G3","Gs3","A4","As4","B4","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4","A5","As5","B5","C5","Cs5","D5","Ds5","E5","F5","Fs5","G5","Gs5"]),
-        demo: ["C4","E4","G4"], melody: ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"],
+        urls: noteUrls(["D4","Ds4","E4","F4","Fs4","G4","Gs4","A4","As4","B4","C5","Cs5","D5","Ds5","E5","F5","Fs5","G5","Gs5"]),
+        demo: ["F4","G4","A4","B4"], melody: ["F4","G4","A4","B4","C5","D5","E5","F5","E5","D5","C5","B4"],
       },
       {
         id: "trumpet", folder: "trumpet", category: "brass", name: "트럼펫", icon: "🎺",
         group: "금관악기 · 실음원", desc: "밝고 또렷하며 화려하게 선언하는 소리",
         tags: ["밝음", "자신감", "화려함"],
-        urls: noteUrls(["A3","As3","B3","Cs3","Ds3","E3","F3","G3","Gs3","A4","As4","B4","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4","A5","As5","B5","C5","Cs5","D5","Ds5","E5","F5","Fs5","G5","Gs5"]),
-        demo: ["C4","E4","G4","C5"], melody: ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"],
+        urls: noteUrls(["B3","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4","A4","As4","B4","C5","Cs5","D5","Ds5","E5","F5"]),
+        demo: ["D4","E4","F4","G4"], melody: ["D4","E4","F4","G4","A4","B4","C5","D5","C5","B4","A4","G4"],
       },
       {
         id: "french-horn", folder: "french-horn", category: "brass", name: "호른", icon: "🎺",
         group: "금관악기 · 실음원", desc: "둥글고 고귀하며 영화 음악처럼 따뜻한 울림",
         tags: ["웅장함", "따뜻함", "신비"],
-        urls: noteUrls(["A2","B2","C2","D2","E2","F2","G2","A3","B3","C3","D3","E3","F3","G3","A4","C4","D4","E4","F4","G4"]),
-        demo: ["C3","E3","C4"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["A2","B2","C3","D3","E3","F3","G3","A3","B3","C4","D4"]),
+        demo: ["C3","D3","E3","F3"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3"],
       },
       {
         id: "trombone", folder: "trombone", category: "brass", name: "트롬본", icon: "🎺",
         group: "금관악기 · 실음원", desc: "굵고 힘 있으며 활기차게 밀고 나가는 소리",
         tags: ["힘", "활기", "웅장함"],
-        urls: noteUrls(["A2","As2","B2","E2","F2","Fs2","G2","Gs2","A3","As3","B3","C3","Cs3","D3","Ds3","E3","F3","Fs3","G3","Gs3","A4","As4","B4","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4"]),
-        demo: ["C3","G3","C4"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["Gs3","A3","As3","B3","C4","Cs4","D4","Ds4","E4","F4","Fs4","G4","Gs4","A4","As4","B4","C5","Cs5","D5"]),
+        demo: ["B3","C4","D4","E4"], melody: ["B3","C4","D4","E4","F4","G4","A4","B4","A4","G4","F4","E4"],
       },
       {
         id: "tuba", folder: "tuba", category: "brass", name: "튜바", icon: "🎺",
         group: "금관악기 · 실음원", desc: "가장 낮고 묵직하게 바닥을 받쳐주는 소리",
         tags: ["무게감", "든든함", "웅장함"],
-        urls: noteUrls(["A2","As2","B2","C2","Cs2","D2","Ds2","E2","F2","Fs2","G2","Gs2","A3","As3","B3","C3","Cs3","D3","Ds3","E3","F3","Fs3","G3","Gs3","C4","Cs4","D4","Ds4","E4","F4"]),
-        demo: ["C2","G2","C3"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["Cs2","D2","Ds2","E2","F2","Fs2","G2","Gs2","A2","As2","B2","C3","Cs3","D3","Ds3","E3","F3","Fs3","G3"]),
+        demo: ["E2","F2","G2","A2"], melody: ["E2","F2","G2","A2","B2","C3","D3","E3","D3","C3","B2","A2"],
       },
       {
         id: "marimba", folder: "marimba", category: "perc", name: "마림바", icon: "🪵",
         group: "타악기 · 실음원", desc: "나무 건반의 따뜻하고 둥근 울림",
         tags: ["따뜻함", "리듬", "서정"],
-        urls: noteUrls(["A2","B2","C2","D2","E2","F2","G2","A3","B3","C3","D3","E3","F3","G3","A4","B4","C4","D4","E4","F4","G4"]),
-        demo: ["C3","E3","G3","C4"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["E3","F3","G3","A3","B3","C4","D4","E4","F4","G4","A4"]),
+        demo: ["G3","A3","B3","C4"], melody: ["G3","A3","B3","C4","D4","E4","F4","G4","F4","E4","D4","C4"],
       },
       {
         id: "xylophone", folder: "xylophone", category: "perc", name: "실로폰", icon: "🪵",
         group: "타악기 · 실음원", desc: "딱딱하고 밝은 나무 타격음",
         tags: ["밝음", "경쾌함", "리듬"],
-        urls: noteUrls(["A3","B3","C3","D3","E3","F3","G3","A4","B4","C4","D4","E4","F4","G4"]),
-        demo: ["C4","E4","G4"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["B3","C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5"]),
+        demo: ["D4","E4","F4","G4"], melody: ["D4","E4","F4","G4","A4","B4","C5","D5","C5","B4","A4","G4"],
       },
       {
         id: "glockenspiel", folder: "glockenspiel", category: "perc", name: "글로켄슈필", icon: "🔔",
         group: "타악기 · 실음원", desc: "종처럼 맑고 반짝이는 금속 건반 소리",
         tags: ["맑음", "반짝임", "가벼움"],
-        urls: noteUrls(["A4","B4","C4","D4","E4","F4","G4","A5","B5","C5","D5","E5","F5","G5"]),
-        demo: ["C5","E5","G5"], melody: ["C4","D4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4","E4","D4","C4"],
+        urls: noteUrls(["A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6"]),
+        demo: ["B4","C5","D5","E5"], melody: ["B4","C5","D5","E5","F5","G5","A5","B5","A5","G5","F5","E5"],
       },
       {
         id: "timpani", folder: "timpani", category: "perc", name: "팀파니", icon: "🥁",
         group: "타악기 · 실음원", desc: "낮고 웅장한 tuned 북 소리",
         tags: ["웅장함", "무게감", "긴장감"],
-        urls: noteUrls(["A2","B2","C2","D2","E2","F2","G2","A3","B3","C3","D3","E3","F3","G3","C4"]),
-        demo: ["C2","G2","C3"], melody: ["C3","D3","E3","F3","G3","A3","B3","C4","B3","A3","G3","F3","E3","D3","C3"],
+        urls: noteUrls(["E2","F2","G2","A2","B2","C3","D3","E3","F3","G3","A3"]),
+        demo: ["G2","A2","B2","C3"], melody: ["G2","A2","B2","C3","D3","E3","F3","G3","F3","E3","D3","C3"],
       },
       {
         id: "snare", folder: "percussion", category: "perc", name: "스네어 드럼", icon: "🥁",
@@ -1020,17 +1021,23 @@
     }
 
     async function loadSamplerOnce(inst) {
-      const notes = Object.keys(inst.urls || {});
-      if (!notes.length) return null;
+      const entries = Object.entries(inst.urls || {});
+      if (!entries.length) return null;
 
-      // 절대 URL + baseUrl 분리: 상대경로/캐시 문제를 줄임
       const baseUrl = new URL(`${SAMPLE_BASE}/${inst.folder}/`, window.location.href).href;
       const urls = {};
-      notes.forEach((note) => { urls[note] = `${note}.mp3`; });
+      entries.forEach(([note, file]) => {
+        // 키: C#4 (Tone), 값: Cs4.mp3 (디스크)
+        const toneKey = toToneKey(note);
+        let safeFile = String(file || `${String(note).replace(/#/g, "s")}.mp3`);
+        safeFile = safeFile.replace(/#/g, "s");
+        if (!safeFile.endsWith(".mp3")) safeFile += ".mp3";
+        urls[toneKey] = safeFile;
+      });
 
-      // 대표 음원 존재 확인 (HEAD 미지원이면 본 로딩으로 진행)
+      const firstFile = Object.values(urls)[0];
       try {
-        const probe = await fetch(sampleUrl(inst.folder, `${notes[0]}.mp3`), { method: "HEAD", cache: "force-cache" });
+        const probe = await fetch(sampleUrl(inst.folder, firstFile), { method: "HEAD", cache: "force-cache" });
         if (probe && !probe.ok && probe.status !== 405) {
           throw new Error(`sample missing (${probe.status})`);
         }
@@ -1038,7 +1045,8 @@
         if (e && /sample missing/.test(String(e.message || e))) throw e;
       }
 
-      const timeoutMs = Math.min(45000, 4000 + notes.length * 700);
+      const noteCount = Object.keys(urls).length;
+      const timeoutMs = Math.min(30000, 5000 + noteCount * 500);
       return new Promise((resolve, reject) => {
         let settled = false;
         const timer = setTimeout(() => {
@@ -1047,13 +1055,11 @@
           reject(new Error("timeout"));
         }, timeoutMs);
 
-        // onerror로 즉시 실패 처리하지 않음 — 예전엔 여기 때문에 코드진행만 실패하고
-        // 카드 듣기는 피아노 fallback으로 "되는 것처럼" 보였음
         const sampler = new Tone.Sampler({
           urls,
           baseUrl,
           attack: 0.01,
-          release: 0.35,
+          release: 0.3,
           onload: () => {
             if (settled) return;
             settled = true;
@@ -1145,29 +1151,15 @@
         return;
       }
       setPlaying(inst.id);
-      // 멜로디에 필요한 음이 샘플에 있는지 한번 더 확인 (없으면 가까운 옥타브로 보정)
-      const available = new Set(Object.keys(inst.urls || {}).map((k) => k.replace("#", "s")));
-      const played = notes.map((n) => {
-        const note = normNote(n);
-        if (!available.size || available.has(note)) return note;
-        // 같은 음이름 다른 옥타브
-        const letter = noteLetter(note);
-        const candidates = [...available].filter((a) => noteLetter(a) === letter);
-        if (candidates.length) {
-          candidates.sort((a, b) => Math.abs(noteOctave(a) - noteOctave(note)) - Math.abs(noteOctave(b) - noteOctave(note)));
-          return candidates[0];
-        }
-        return note;
-      });
       const now = Tone.now();
-      played.forEach((n, i) => {
+      notes.forEach((n, i) => {
         try {
-          voice.triggerAttackRelease(toToneNote(n), noteSec, now + i * stepSec);
+          voice.triggerAttackRelease(toToneNote(normNote(n)), noteSec, now + i * stepSec);
         } catch (e) {
           console.warn("[playNotes]", inst.id, n, e);
         }
       });
-      const total = (stepSec * Math.max(played.length - 1, 0) + noteSec) * 1000 + 250;
+      const total = (stepSec * Math.max(notes.length - 1, 0) + noteSec) * 1000 + 250;
       const timer = setTimeout(() => setPlaying(null), total);
       state.stopHandles.push(() => clearTimeout(timer));
     }
